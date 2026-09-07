@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gratis forsikringstjek | Mega Limited</title>
+  <meta name="description" content="Book et gratis og uforpligtende forsikringstjek. Vælg selv dato og tidspunkt, så ringer Mega Limited dig op på vegne af Topdanmark.">
+  <meta name="robots" content="index,follow">
+  <style>
+    :root{--bg:#f5f3ee;--card:#fff;--ink:#151515;--muted:#66625b;--line:#ddd8ce;--accent:#151515;--ok:#206a43;--warn:#8a2d20;--shadow:0 18px 50px rgba(0,0,0,.08)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+    .wrap{width:min(1120px,calc(100% - 32px));margin:auto}
+    header{padding:22px 0;border-bottom:1px solid var(--line);background:rgba(245,243,238,.94)}
+    .brand{font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:15px}
+    .hero{padding:58px 0 34px}
+    .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:start}
+    .eyebrow{display:inline-flex;padding:8px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:700;background:#fff;margin-bottom:22px}
+    h1{font-size:clamp(40px,6vw,68px);line-height:1.02;letter-spacing:-.045em;margin:0 0 20px;max-width:750px}
+    .lead{font-size:clamp(18px,2vw,22px);color:var(--muted);max-width:670px;margin:0 0 28px}
+    .checks{display:grid;gap:11px;margin:28px 0 34px;padding:0;list-style:none}
+    .checks li{display:flex;gap:10px;align-items:center;font-weight:650}
+    .checks li:before{content:"✓";display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#e8f2ec;color:var(--ok);font-weight:900;flex:0 0 auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:var(--shadow)}
+    .card h2{margin:0 0 7px;font-size:28px;letter-spacing:-.025em}
+    .card .intro{margin:0 0 22px;color:var(--muted)}
+    .field{margin:0 0 17px}
+    label,.label{display:block;font-weight:750;font-size:14px;margin:0 0 7px}
+    input,select{width:100%;border:1px solid #cbc5ba;background:#fff;border-radius:11px;padding:13px 14px;font:inherit;color:var(--ink);outline:none;min-height:50px}
+    input:focus,select:focus{border-color:#777;box-shadow:0 0 0 3px rgba(0,0,0,.06)}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .choice label{border:1px solid #cbc5ba;border-radius:11px;padding:12px 13px;display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:650;background:#fff;margin:0}
+    .choice input{width:18px;height:18px;min-height:0}
+    .notice{display:none;padding:12px 14px;border-radius:10px;background:#fff0ed;color:var(--warn);font-size:14px;margin-top:10px}
+    .consent{display:flex;align-items:flex-start;gap:11px;font-size:13px;color:#4e4b45;line-height:1.45;margin:18px 0}
+    .consent input{width:18px;height:18px;min-height:0;margin-top:2px;flex:0 0 auto}
+    button{width:100%;border:0;border-radius:12px;background:var(--accent);color:#fff;padding:15px 18px;font:inherit;font-weight:800;cursor:pointer;min-height:54px;transition:.18s ease}
+    button:hover{transform:translateY(-1px);opacity:.92}
+    button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .micro{text-align:center;font-size:12px;color:var(--muted);margin:10px 0 0}
+    .pending{display:none;margin:14px 0 0;padding:12px;border-radius:10px;background:#fff6df;color:#6b5410;font-size:13px}
+    section.info{padding:34px 0 70px}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:21px}
+    .num{font-size:12px;font-weight:850;letter-spacing:.1em;color:var(--muted);margin-bottom:8px}
+    .step h3{margin:0 0 8px;font-size:18px}
+    .step p{margin:0;color:var(--muted);font-size:14px}
+    .legal{border-top:1px solid var(--line);padding:32px 0 46px;color:#5d5951;font-size:12px}
+    .legal strong{display:block;color:var(--ink);font-size:14px;margin-bottom:8px}
+    .legal p{margin:0;max-width:980px}
+    @media(max-width:820px){.hero{padding-top:36px}.grid{grid-template-columns:1fr;gap:30px}.steps{grid-template-columns:1fr}.two{grid-template-columns:1fr}.card{padding:21px}.wrap{width:min(100% - 24px,1120px)}h1{font-size:44px}}
+  </style>
+</head>
+<body>
+  <header><div class="wrap"><div class="brand">Mega Limited</div></div></header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap grid">
+        <div>
+          <div class="eyebrow">Gratis og uforpligtende</div>
+          <h1>Få et gratis forsikringstjek</h1>
+          <p class="lead">Få gennemgået dine privatforsikringer og se, om Topdanmark kan tilbyde dig en løsning, der passer bedre til dig. Vælg selv et konkret tidspunkt, så ringer vi dig op.</p>
+          <ul class="checks">
+            <li>Personlig gennemgang af dine forsikringer</li>
+            <li>Du vælger selv dato og klokkeslæt</li>
+            <li>Du bestemmer selv, om du vil skifte</li>
+          </ul>
+        </div>
+
+        <div class="card" id="booking">
+          <h2>Vælg et tidspunkt</h2>
+          <p class="intro">Book det tidspunkt, hvor det passer dig bedst at blive ringet op.</p>
+
+          <form id="leadForm" novalidate>
+            <input type="hidden" name="source" value="forsikringstjek">
+            <input type="hidden" name="utm_source" id="utm_source">
+            <input type="hidden" name="utm_medium" id="utm_medium">
+            <input type="hidden" name="utm_campaign" id="utm_campaign">
+            <input type="hidden" name="utm_content" id="utm_content">
+            <input type="hidden" name="utm_term" id="utm_term">
+
+            <div class="two">
+              <div class="field">
+                <label for="date">Dato</label>
+                <select id="date" name="dato" required><option value="">Vælg dato</option></select>
+              </div>
+              <div class="field">
+                <label for="time">Klokkeslæt</label>
+                <select id="time" name="tidspunkt" required disabled><option value="">Vælg tidspunkt</option></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="name">Navn</label>
+              <input id="name" name="navn" autocomplete="name" required placeholder="Dit navn">
+            </div>
+            <div class="two">
+              <div class="field">
+                <label for="phone">Telefonnummer</label>
+                <input id="phone" name="telefon" type="tel" autocomplete="tel" inputmode="tel" required placeholder="Fx 20 30 40 50">
+              </div>
+              <div class="field">
+                <label for="postcode">Postnummer</label>
+                <input id="postcode" name="postnummer" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{4}" maxlength="4" required placeholder="Fx 9000">
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label">Er du allerede kunde hos Topdanmark?</span>
+              <div class="choice">
+                <label><input type="radio" name="topdanmark_kunde" value="nej" required> Nej</label>
+                <label><input type="radio" name="topdanmark_kunde" value="ja" required> Ja</label>
+              </div>
+              <div class="notice" id="customerNotice">Denne booking er målrettet nye kunder, som ikke allerede er kunder hos Topdanmark.</div>
+            </div>
+
+            <label class="consent">
+              <input type="checkbox" id="consent" name="samtykke" value="ja" required>
+              <span>Ja tak, jeg ønsker at blive kontaktet telefonisk af Mega Limited, der handler på vegne af Topdanmark, vedrørende tilbud og rådgivning om privatforsikringer. Jeg kan til enhver tid trække mit samtykke tilbage.</span>
+            </label>
+
+            <button type="submit" id="submitBtn">Book mit forsikringstjek</button>
+            <p class="micro">Gratis og uforpligtende. Vi ringer på det tidspunkt, du vælger.</p>
+            <div class="pending" id="pendingMsg">Bookingsiden er klar. Selve levering af bookingen til Mega aktiveres, så snart modtageradressen er koblet på.</div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="info">
+      <div class="wrap">
+        <div class="steps">
+          <div class="step"><div class="num">01</div><h3>Vælg tidspunkt</h3><p>Du vælger selv den dato og det klokkeslæt, hvor vi skal ringe.</p></div>
+          <div class="step"><div class="num">02</div><h3>Vi ringer dig op</h3><p>En forsikringsagent gennemgår din situation og dine behov med dig.</p></div>
+          <div class="step"><div class="num">03</div><h3>Du tager stilling</h3><p>Hvis der er en relevant løsning hos Topdanmark, vælger du selv, om du ønsker at skifte.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="legal">
+    <div class="wrap">
+      <strong>Lukas Bach Nielsen<br>Forsikringsagent<br>Mega Limited<br>Telefon 70 80 57 84</strong>
+      <p>Forsikringsagenten handler på vegne af Topdanmark - en del af If Skadeforsikring, filial af If Skadeförsäkring AB (publ), Sverige, Borupvang 4, 2750 Ballerup, CVR-nr. 2420 3212 (herefter kaldet Topdanmark) i henhold til forsikringsformidleraftale mellem Topdanmark og Mega Limited, der har tilladelse som forsikringsformidler hos Finanstilsynet</p>
+    </div>
+  </footer>
+
+  <script>
+    const dateEl = document.getElementById('date');
+    const timeEl = document.getElementById('time');
+    const form = document.getElementById('leadForm');
+    const notice = document.getElementById('customerNotice');
+    const submitBtn = document.getElementById('submitBtn');
+    const pendingMsg = document.getElementById('pendingMsg');
+    const locale = 'da-DK';
+
+    function pad(n){return String(n).padStart(2,'0')}
+    function localISO(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+    function labelDate(d){return d.toLocaleDateString(locale,{weekday:'short',day:'numeric',month:'short'})}
+
+    function populateDates(){
+      const now = new Date();
+      let d = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+      let count = 0;
+      while(count < 12){
+        const day = d.getDay();
+        if(day !== 0 && day !== 6){
+          const opt = document.createElement('option');
+          opt.value = localISO(d);
+          opt.textContent = labelDate(d);
+          dateEl.appendChild(opt);
+          count++;
+        }
+        d.setDate(d.getDate()+1);
+      }
+    }
+
+    function populateTimes(){
+      timeEl.innerHTML = '<option value="">Vælg tidspunkt</option>';
+      if(!dateEl.value){timeEl.disabled=true;return}
+      const now = new Date();
+      const selected = dateEl.value;
+      for(let hour=9; hour<=17; hour++){
+        for(const minute of [0,30]){
+          if(hour===17 && minute===30) continue;
+          const value = `${pad(hour)}:${pad(minute)}`;
+          if(selected === localISO(now)){
+            const slot = new Date(now.getFullYear(),now.getMonth(),now.getDate(),hour,minute);
+            if(slot.getTime() < now.getTime() + 90*60*1000) continue;
+          }
+          const opt=document.createElement('option');
+          opt.value=value; opt.textContent=value; timeEl.appendChild(opt);
+        }
+      }
+      timeEl.disabled=false;
+    }
+
+    populateDates();
+    dateEl.addEventListener('change',populateTimes);
+
+    document.querySelectorAll('input[name="topdanmark_kunde"]').forEach(r=>r.addEventListener('change',()=>{
+      const yes=document.querySelector('input[name="topdanmark_kunde"]:checked')?.value==='ja';
+      notice.style.display=yes?'block':'none';
+      submitBtn.disabled=yes;
+    }));
+
+    const params=new URLSearchParams(location.search);
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k=>{
+      const el=document.getElementById(k); if(el) el.value=params.get(k)||'';
+    });
+
+    form.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      const current=document.querySelector('input[name="topdanmark_kunde"]:checked');
+      if(!form.checkValidity()){form.reportValidity();return}
+      if(!current || current.value!=='nej'){notice.style.display='block';return}
+      pendingMsg.style.display='block';
+      pendingMsg.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+  </script>
+</body>
+</html>
