@@ -1,0 +1,45 @@
+name: Inspect homepage images
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect image blocks without changing site
+        shell: python
+        run: |
+          from pathlib import Path
+          import re, base64, hashlib, struct
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          imgs = list(re.finditer(r'<img\b[^>]*>', html, flags=re.I|re.S))
+          print('IMG_COUNT', len(imgs))
+          for i,m in enumerate(imgs,1):
+              tag=m.group(0)
+              alt=re.search(r'alt=["\']([^"\']*)',tag,re.I)
+              cls=re.search(r'class=["\']([^"\']*)',tag,re.I)
+              src=re.search(r'src=["\']([^"\']*)',tag,re.I|re.S)
+              s=src.group(1) if src else ''
+              sha=''; dims=''; slen=len(s)
+              if s.startswith('data:image') and ',' in s:
+                  try:
+                      raw=base64.b64decode(s.split(',',1)[1])
+                      sha=hashlib.sha256(raw).hexdigest()[:16]
+                      import tempfile, subprocess, os
+                      fd,p=tempfile.mkstemp(suffix='.img'); os.close(fd)
+                      Path(p).write_bytes(raw)
+                      dims=subprocess.check_output(['file',p],text=True).strip()
+                      os.unlink(p)
+                  except Exception as e: dims='ERR '+str(e)
+              before=re.sub(r'data:image[^"\']+', '[DATA]', html[max(0,m.start()-220):m.start()], flags=re.S)
+              after=re.sub(r'data:image[^"\']+', '[DATA]', html[m.end():m.end()+220], flags=re.S)
+              print(f'\nIMG {i} alt={alt.group(1) if alt else ""!r} class={cls.group(1) if cls else ""!r} srclen={slen} sha={sha}')
+              print('FILE', dims)
+              print('CTX_BEFORE', ' '.join(before.split()))
+              print('CTX_AFTER', ' '.join(after.split()))
