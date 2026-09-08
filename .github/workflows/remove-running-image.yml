@@ -1,0 +1,42 @@
+name: Remove running image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  remove-running-image:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Remove only the Mega Gear running image
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
+
+          pattern = r'\n\s*<div class="gear-image-wrap">\s*<img\s+src="data:image/jpeg;base64,.*?"\s+alt="Mega Gear i bevægelse"\s+class="gear-image"\s*/>\s*</div>'
+          updated, count = re.subn(pattern, "", html, count=1, flags=re.S)
+
+          if count != 1:
+              raise SystemExit(f"Expected exactly one running-image block, found {count}. No website changes made.")
+
+          path.write_text(updated, encoding="utf-8")
+
+      - name: Commit website change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Remove running image from Mega Gear section"
+          git push
