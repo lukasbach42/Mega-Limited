@@ -1,1 +1,0 @@
-Temporary helper for Mega logo update
