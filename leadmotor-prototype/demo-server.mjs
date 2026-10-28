@@ -1,6 +1,8 @@
 // Local-only synthetic demo API. NOT production-ready. Never use with real personal data.
 import http from "node:http";
-import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { createAuthorization, routeAction } from "./demo-access.mjs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createPersistentCRM } from "./persistent-crm.mjs";
@@ -17,13 +19,6 @@ const jsonHeaders = {
 function reply(res, status, data) {
   res.writeHead(status, jsonHeaders);
   res.end(JSON.stringify(data));
-}
-
-function authenticated(header, token) {
-  if (typeof header !== "string" || !header.startsWith("Bearer ")) return false;
-  const supplied = Buffer.from(header.slice(7));
-  const expected = Buffer.from(token);
-  return supplied.length === expected.length && timingSafeEqual(supplied, expected);
 }
 
 async function readBody(req) {
@@ -46,11 +41,17 @@ async function readBody(req) {
   }
 }
 
-export function createDemoServer({ token, now, makeId, storage } = {}) {
-  if (typeof token !== "string" || token.length < 24) throw new Error("STRONG_DEMO_TOKEN_REQUIRED");
+export function createDemoServer({ token, credentials, now, makeId, storage } = {}) {
+  const access = createAuthorization({ token, credentials });
+  const windows = new Map();
+  const assets = new Map([
+    ['/', ['index.html', 'text/html; charset=utf-8']],
+    ['/demo-ui.css', ['demo-ui.css', 'text/css; charset=utf-8']],
+    ['/demo-ui.mjs', ['demo-ui.mjs', 'text/javascript; charset=utf-8']],
+    ['/demo-client.mjs', ['demo-client.mjs', 'text/javascript; charset=utf-8']],
+  ].map(([path, [file, type]]) => [path, { content: readFileSync(new URL(file, import.meta.url)), type }]));
   const options = { now, makeId: makeId || (() => "demo-" + randomUUID()) };
   const crm = storage ? createPersistentCRM({ ...options, ...storage }) : createDemoCRM(options);
-  const windows = new Map();
   const server = http.createServer(async (req, res) => {
     try {
       // Only loopback traffic is accepted. Host and Origin checks mitigate DNS rebinding.
@@ -68,7 +69,18 @@ export function createDemoServer({ token, now, makeId, storage } = {}) {
           return reply(res, 403, { error: "INVALID_ORIGIN" });
         }
       }
-      if (!authenticated(req.headers.authorization, token)) {
+      const path = new URL(req.url, "http://127.0.0.1").pathname;
+      if (req.method === "GET" && assets.has(path)) {
+        const asset = assets.get(path);
+        res.writeHead(200, {
+          ...jsonHeaders, "Content-Type": asset.type,
+          "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+          "Referrer-Policy": "no-referrer", "Cross-Origin-Resource-Policy": "same-origin",
+        });
+        return res.end(asset.content);
+      }
+      const role = access.identify(req.headers.authorization);
+      if (!role) {
         return reply(res, 401, { error: "UNAUTHORIZED" });
       }
       const ip = req.socket.remoteAddress;
@@ -77,7 +89,10 @@ export function createDemoServer({ token, now, makeId, storage } = {}) {
       const hits = entry && entry.minute === minute ? entry.hits + 1 : 1;
       windows.set(ip, { minute, hits });
       if (hits > 60) return reply(res, 429, { error: "RATE_LIMIT" });
-      const path = new URL(req.url, "http://127.0.0.1").pathname;
+      const action = routeAction(req.method, path);
+      if (!action) return reply(res, 404, { error: "NOT_FOUND" });
+      if (!access.permits(role, action)) return reply(res, 403, { error: "FORBIDDEN" });
+      if (action === "session") return reply(res, 200, { role, syntheticOnly: true });
       if (req.method === "GET" && path === "/api/slots") return reply(res, 200, crm.availableSlots());
       if (req.method === "GET" && path === "/api/kpi") return reply(res, 200, crm.kpi());
       if (req.method === "POST" && path === "/api/leads") {
@@ -120,11 +135,15 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const file = process.env.DEMO_STORE_FILE;
   const key = process.env.DEMO_STORE_KEY;
   if (Boolean(file) !== Boolean(key)) throw new Error("STORE_FILE_AND_KEY_REQUIRED");
-  const server = createDemoServer({ token, storage: file ? { file, key } : undefined });
+  const intakeToken = randomBytes(32).toString("hex");
+  const analystToken = randomBytes(32).toString("hex");
+  const server = createDemoServer({ token, credentials: [{ token: intakeToken, role: "intake" }, { token: analystToken, role: "analyst" }], storage: file ? { file, key } : undefined });
   for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => server.close());
   server.listen(8787, "127.0.0.1", () => {
     console.log("Synthetic-only demo API on http://127.0.0.1:8787");
-    console.log("Temporary Bearer token (local development only):", token);
+    console.log("Temporary operator token:", token);
+    console.log("Temporary intake token:", intakeToken);
+    console.log("Temporary analyst token:", analystToken);
     console.log("Never submit real names, numbers, or other personal data.");
   });
 }

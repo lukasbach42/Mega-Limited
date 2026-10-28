@@ -7,3 +7,7 @@
 .env.*
 
 *.enc.*.tmp
+
+node_modules/
+test-results/
+playwright-report/

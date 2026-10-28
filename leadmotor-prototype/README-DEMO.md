@@ -80,3 +80,7 @@ Remaining production work: managed identity and roles, durable transactional dat
 ## Backup og gendannelse af testdata
 
 `store-maintenance.mjs` kan kontrollere og kopiere det krypterede test-CRM til en ny backupfil samt gendanne til en ny CRM-fil. Serveren skal være stoppet. Ingen eksisterende filer overskrives. Se [RECOVERY.md](RECOVERY.md) for arbejdsgang, begrænsninger og kontrol efter gendannelse.
+
+## Samlet testflow og adgangsroller
+
+Start demoserveren og åbn dens localhost-adresse. Formular, testsamtykke, UTM, CRM, testbooking og KPI er nu forbundet med separate intake/operator/analyst-roller. Se [TEST-FLOW.md](TEST-FLOW.md). Resterende konkrete afhængigheder før rigtige leads er samlet i [LAUNCH-READINESS.md](LAUNCH-READINESS.md). Testgrænsefladen er ikke en offentlig kundeside.

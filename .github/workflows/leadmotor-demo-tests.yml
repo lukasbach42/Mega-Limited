@@ -18,9 +18,33 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
       - name: Run synthetic-only tests
         run: node --test leadmotor-prototype/*.test.mjs
+
+  browser-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: leadmotor-prototype/browser-tests
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Install pinned browser-test dependency (no lifecycle scripts)
+        run: npm install --ignore-scripts --no-package-lock --no-audit --no-fund --omit=optional
+      - name: Install test browser
+        run: npx playwright install --with-deps chromium
+      - name: Run synthetic browser journeys
+        run: npx playwright test
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: synthetic-browser-results
+          path: leadmotor-prototype/browser-tests/test-results/
+          retention-days: 7
