@@ -1,0 +1,7 @@
+# Runtime demo data and keys must never enter Git or static hosting.
+.demo-data/
+*.enc
+*.enc.lock
+*.enc.tmp
+.env
+.env.*
