@@ -14,3 +14,7 @@ Før betalt trafik: test 10 syntetiske cases, adgangsrettigheder, 2 dubletter, 1
 
 ## Uafklaret før aktivering
 Sikker endpoint/CRM og hosting, juridisk godkendt samtykke og privacy notice, aktiv partner-/produktpositionering, hvem der modtager leads, bookingkapacitet og budget. Eksisterende Topdanmark-formular må ikke bruges til nye partnerneutrale leads.
+
+## Valgt opfølgning
+
+Ejeren modtager og fordeler henvendelser til egne sælgere i en beskyttet leadindbakke. Kunden angiver en ønsket kontakttid; det er ikke en bekræftet booking. Sælgeren kontakter og bekræfter manuelt, så ekstern kalenderintegration ikke er en forudsætning for denne arbejdsgang. Den syntetiske implementation og adgangsgrænser er beskrevet i [INBOX.md](INBOX.md).

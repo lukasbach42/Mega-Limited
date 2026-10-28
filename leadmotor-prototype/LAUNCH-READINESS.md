@@ -15,13 +15,17 @@ Dette er en teknisk testbranch oven på draft PR #1. Ingen produktion eller anno
 
 | Afhængighed | Faktisk status | Hvad der kræves |
 |---|---|---|
-| Modtager og opfølgning | Ikke fastlagt i den tekniske opsætning | Ansvarlig person, kontaktvinduer og arbejdsgang for opfølgning |
-| CRM, hosting og kalender | Ingen produktionsadgang eller valgt integration i denne branch | Eksisterende system/adgang eller et konkret godkendt valg; HTTPS, personlige identiteter og reel kapacitet |
+| Modtager og opfølgning | Ejeren har valgt selv at modtage og fordele til egne sælgere | Sælgernavne, personlige brugeradgange og konkret opfølgningsrutine |
+| CRM og hosting | Egen leadindbakke er valgt og implementeret som syntetisk prototype | Produktionshosting, HTTPS, personlige identiteter og produktionsklar lagring |
 | Retention/sletning | Prototype gemmer hele loggen; ingen sletning implementeret | Besluttet slettepolitik og teknisk håndtering af data, backups og frabedelser ved recovery |
 | Samtykke og privatliv | Kun tydeligt mærket testsamtykke | Verificerede virksomheds-/dataansvarsoplysninger og juridisk gennemgåede tekster og kontaktgrundlag |
 | Tilbud og partnerposition | Ingen partneraftale dokumenteret i koden | Bekræftelse af hvad Mega faktisk kan tilbyde; ingen udokumenterede partner- eller besparelsesløfter |
 | Trafik og offentlig åbning | Ingen lancering eller kampagne gennemført | Konkret godkendt side/kanal og offentliggørelse. Betalt trafik kræver særskilt budget og stopregler |
 
-Det næste eksterne skridt er ikke endnu en syntetisk test. Det er at få modtager, systemadgang og tilbud fastlagt, så en konkret, gennemtestet produktionsændring kan klargøres til godkendelse. Rigtige leads kan ikke leveres af en localhost-prototype, og kode alene skaber ikke trafik.
+Arbejdsgangen er nu fastlagt: ejeren modtager henvendelser i egen indbakke og fordeler dem til egne sælgere. Næste driftsafhængighed er produktionshosting og personlige sælgeradgange samt godkendte kundetekster og tilbud. Rigtige leads kan ikke leveres af en localhost-prototype, og kode alene skaber ikke trafik.
 
 Den eksisterende `/forsikringstjek/` er ikke migreret og må ikke forudsættes at være en partnerneutral indgang. Main/live holdes urørt, indtil en konkret produktionsændring er godkendt.
+
+## Ønsket kontakttid i stedet for kalenderintegration
+
+En rigtig kalenderintegration er ikke et krav for den valgte manuelle indbakke: henvendelsen indeholder et ønske om kontakttid, og sælgeren bekræfter en aftale efter opfølgning. Kundeteksten skal tydeligt sige, at indsendelse ikke reserverer eller bekræfter en tid. De eksisterende demo-bookingslots er kun til tests. Se [INBOX.md](INBOX.md).
