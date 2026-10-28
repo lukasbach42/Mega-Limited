@@ -56,6 +56,8 @@ export function createPersistentCRM({ file, key, now = () => new Date().toISOStr
     submit: input => mutate('submit', [input]),
     book: (id, slot) => mutate('book', [id, slot]),
     recordEvent: (id, type) => mutate('recordEvent', [id, type]),
+    assign: (id, assignee, expectedAssignee) => mutate('assign', [id, assignee, expectedAssignee]),
+    listLeads: read('listLeads'), team: read('team'),
     getLead: read('getLead'), availableSlots: read('availableSlots'), kpi: read('kpi'),
     close() { if (!closed) { closed = true; secret.fill(0); unlinkSync(lock); } },
   };

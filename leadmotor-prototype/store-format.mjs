@@ -13,7 +13,7 @@ export function replayStore(log) {
   const candidate = createDemoCRM({ now: () => current.at, makeId: () => current.id });
   let result;
   for (const command of log) {
-    if (!command || !['submit', 'book', 'recordEvent'].includes(command.method) || !Array.isArray(command.args)) throw new Error('INVALID_STORE');
+    if (!command || !['submit', 'book', 'recordEvent', 'assign'].includes(command.method) || !Array.isArray(command.args)) throw new Error('INVALID_STORE');
     current = command;
     result = candidate[command.method](...command.args);
   }

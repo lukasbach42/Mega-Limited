@@ -15,12 +15,21 @@
     <button type="submit">Åbn test</button></form>
     <p id="session-status" role="status">Ingen testsession åben.</p><button id="disconnect" type="button" hidden>Luk testsession</button>
   </section>
+  <section id="inbox" aria-labelledby="inbox-heading" hidden><h2 id="inbox-heading">Leadindbakke</h2>
+    <p id="inbox-description">Fordel henvendelser til egne sælgere. Der sendes ingen mails eller kundedata til andre virksomheder.</p>
+    <form id="inbox-filter-form"><label for="inbox-status">Status</label><select id="inbox-status"><option value="active">Aktive henvendelser</option><option value="new">Nye</option><option value="contacted">Kontaktet</option><option value="booked">Testbooket</option><option value="withdrawn">Frabedelser</option><option value="all">Alle</option></select>
+    <div id="owner-filter"><label for="inbox-owner">Fordeling</label><select id="inbox-owner"><option value="all">Alle sælgere</option><option value="unassigned">Ikke fordelt</option></select></div>
+    <button id="refresh-inbox" type="submit">Opdater indbakke</button></form>
+    <p id="inbox-status-text" role="status"></p><div class="table-scroll"><table><thead><tr><th>Kunde (test)</th><th>Ønsket kontakt</th><th>Status / kilde</th><th>Ansvarlig sælger</th><th>Åbn lead</th></tr></thead><tbody id="inbox-rows"></tbody></table></div>
+    <div class="pager"><button id="inbox-prev" type="button" disabled>Forrige side</button><button id="inbox-next" type="button" disabled>Næste side</button></div>
+  </section>
   <section id="intake" aria-labelledby="lead-heading" hidden><h2 id="lead-heading">2. Gem et kunstigt lead</h2>
     <form id="lead-form"><fieldset id="lead-fields"><legend>Testoplysninger</legend>
     <label for="name">Testnavn</label><input id="name" name="name" value="Test Kunde1" pattern="Test [A-Za-z0-9 \-]{2,60}" maxlength="65" autocomplete="off" required>
     <label for="phone">Testtelefon</label><input id="phone" name="phone" type="tel" value="00000001" pattern="0000[0-9]{4}" maxlength="8" autocomplete="off" required>
     <label for="postcode">Testpostnummer</label><input id="postcode" name="postcode" value="0000" readonly>
     <label for="preferred_contact">Kontaktvindue</label><select id="preferred_contact" name="preferred_contact"><option value="formiddag">Formiddag</option><option value="eftermiddag">Eftermiddag</option></select>
+    <label for="requested-contact">Ønsket kontakttid (valgfrit, dansk tid)</label><input id="requested-contact" type="datetime-local" step="60"><small>Et ønske om et opkald — ingen bekræftet aftale.</small>
     <label for="source">Kanal</label><select id="source" name="source"><option value="test">Intern test</option><option value="organic">Organisk</option><option value="direct">Direkte</option><option value="referral">Henvisning</option></select>
     <label for="utm_source">UTM-kilde</label><input id="utm_source" name="utm_source" maxlength="80" pattern="[a-zA-Z0-9._\-]*" autocomplete="off">
     <label for="utm_medium">UTM-medie</label><input id="utm_medium" name="utm_medium" maxlength="80" pattern="[a-zA-Z0-9._\-]*" autocomplete="off">

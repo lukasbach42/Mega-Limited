@@ -84,3 +84,7 @@ Remaining production work: managed identity and roles, durable transactional dat
 ## Samlet testflow og adgangsroller
 
 Start demoserveren og åbn dens localhost-adresse. Formular, testsamtykke, UTM, CRM, testbooking og KPI er nu forbundet med separate intake/operator/analyst-roller. Se [TEST-FLOW.md](TEST-FLOW.md). Resterende konkrete afhængigheder før rigtige leads er samlet i [LAUNCH-READINESS.md](LAUNCH-READINESS.md). Testgrænsefladen er ikke en offentlig kundeside.
+
+## Indbakke og egne sælgere
+
+En operator kan nu se og fordele testleads; hver seller-testadgang er bundet til en af de to interne testsælgere og giver kun adgang til aktuelt tildelte leads. Ønsket kontakttid, konfliktkontrol og fordelingshistorik er beskrevet i [INBOX.md](INBOX.md). Den oprindelige rolletabel ovenfor suppleres af denne sælgerrolle.

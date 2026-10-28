@@ -4,7 +4,7 @@ import { createDemoServer } from '../demo-server.mjs';
 const operator='browser-synthetic-operator-at-least-24',intake='browser-synthetic-intake-at-least-24',analyst='browser-synthetic-analyst-at-least-24';
 const test=base.extend({
   app:async({},use)=>{
-    const server=createDemoServer({token:operator,credentials:[{token:intake,role:'intake'},{token:analyst,role:'analyst'}]});
+    const server=createDemoServer({token:operator,credentials:[{token:intake,role:'intake'},{token:analyst,role:'analyst'},{token:'browser-synthetic-seller-one-token-at-least-24',role:'seller',sellerId:'demo-seller-1'},{token:'browser-synthetic-seller-two-token-at-least-24',role:'seller',sellerId:'demo-seller-2'}]});
     server.listen(0,'127.0.0.1');await once(server,'listening');
     try {await use('http://127.0.0.1:'+server.address().port);}
     finally {await new Promise(resolve=>server.close(resolve));}
@@ -69,6 +69,7 @@ test('stale slot selection shows conflict without losing the saved lead',async({
   const other=await context.newPage();
   await login(page,app);await submit(page,1);
   await login(other,app);await submit(other,2);
+  await expect(other.locator('#slot')).toHaveValue('demo-slot-1');
   await page.getByRole('button',{name:'Reserver testslot',exact:true}).click();
   await expect(page.locator('#booking-status')).toContainText('Testbooking bekræftet');
   await other.getByRole('button',{name:'Reserver testslot',exact:true}).click();
@@ -99,4 +100,32 @@ test('invalid token is rejected and URL campaign validation does not execute mar
   await page.getByRole('button',{name:'Åbn test',exact:true}).click();
   await expect(page.locator('#error')).toContainText('ugyldig');
   await expect(page.locator('#intake')).toBeHidden();await expect(page.locator('#token')).toHaveValue('');
+});
+
+
+test('operator inbox distributes to own sellers; reallocation removes prior seller access',async({page,context,app},testInfo)=>{
+  await login(page,app);
+  await page.getByLabel('Ønsket kontakttid (valgfrit, dansk tid)').fill('2026-11-02T10:30');
+  await submit(page);
+  const row=page.locator('#inbox-rows tr').filter({hasText:'Test Browser1'});
+  await expect(row).toContainText('10.30');
+  await row.getByLabel('Ansvarlig for Test Browser1').selectOption('demo-seller-1');
+  await row.getByRole('button',{name:'Gem fordeling'}).click();
+  await expect(page.locator('#lead-record')).toContainText('demo-seller-1');
+  const seller=await context.newPage();await login(seller,app,'browser-synthetic-seller-one-token-at-least-24');
+  await expect(seller.locator('#inbox-rows')).toContainText('Test Browser1');
+  await expect(seller.locator('#intake')).toBeHidden();await expect(seller.locator('#reporting')).toBeHidden();
+  await seller.getByRole('button',{name:'Åbn Test Browser1'}).click();
+  await expect(seller.locator('#lead-record')).toContainText('demo-seller-1');
+  await page.screenshot({path:testInfo.outputPath('synthetic-inbox-assignment.png'),fullPage:true});
+  await row.getByLabel('Ansvarlig for Test Browser1').selectOption('demo-seller-2');
+  await row.getByRole('button',{name:'Gem fordeling'}).click();
+  await expect(page.locator('#lead-record')).toContainText('demo-seller-2');
+  await seller.getByRole('button',{name:'Registrer testhændelse'}).click();
+  await expect(seller.locator('#error')).toContainText('ikke længere tilgængeligt');
+  await expect(seller.locator('#lead-record')).toBeEmpty();
+  await seller.getByRole('button',{name:'Opdater indbakke'}).click();
+  await expect(seller.locator('#inbox-status-text')).toContainText('Ingen henvendelser');
+  await page.locator('#inbox-owner').selectOption('unassigned');await page.getByRole('button',{name:'Opdater indbakke'}).click();
+  await expect(page.locator('#inbox-status-text')).toContainText('Ingen henvendelser');
 });

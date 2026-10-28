@@ -14,7 +14,7 @@ node leadmotor-prototype/demo-server.mjs
 | operator | Ja | Ja | Ja | Ja | Ja |
 | analyst | Nej | Nej | Nej | Nej | Ja |
 
-Det er procesbaserede testroller, ikke personlige brugerkonti, MFA, audit-identiteter eller produktionsegnet autorisation. Intake kan booke kendte testlead-ID'er; der er ingen individuel lead-ejerskabskontrol. Dette må ikke være offentlig adgang til reelle leads. `GET /api/session` viser kun den autentificerede testrolle. Serveren håndhæver tilladelserne, også hvis klienten ændres eller kaldes direkte.
+Det er procesbaserede testroller, ikke personlige brugerkonti, MFA, audit-identiteter eller produktionsegnet autorisation. Intake kan booke kendte testlead-ID'er; intake har ingen individuel ejerskabskontrol. Den senere tilføjede seller-rolle er derimod begrænset til egne aktuelt tildelte leads (se INBOX.md). Dette må ikke være offentlig adgang til reelle leads. `GET /api/session` viser kun den autentificerede testrolle. Serveren håndhæver tilladelserne, også hvis klienten ændres eller kaldes direkte.
 
 ## Kontrolleret vej gennem formularen
 
@@ -35,3 +35,7 @@ node --test leadmotor-prototype/*.test.mjs
 CI kører Node-suiten på Windows og Linux. En separat Chromium-suite afprøver den faktiske HTML/JavaScript-formular: samtykkekrav, UTM, dedup, slotkonflikter, frabedelse, rollevisning, fejlet netværk, ugyldig token og nyt lead efter tidligere booking. Browserafhængigheden er kun en udviklings-/testafhængighed; serveren kræver fortsat ingen tredjepartspakker.
 
 Browser-tests følger Playwrights officielle CI-arbejdsgang: https://playwright.dev/docs/ci . Kør dem lokalt fra `leadmotor-prototype/browser-tests` med `npm install --ignore-scripts --no-package-lock --omit=optional`, `npx playwright install chromium` og `npm test`. Alle testservere er friske localhost-instanser med syntetiske data og testtokens; testene kontakter ikke rigtige kunder eller kalendere.
+
+## Indbakke og egne sælgere
+
+En operator kan nu se og fordele testleads; hver seller-testadgang er bundet til en af de to interne testsælgere og giver kun adgang til aktuelt tildelte leads. Ønsket kontakttid, konfliktkontrol og fordelingshistorik er beskrevet i [INBOX.md](INBOX.md). Den oprindelige rolletabel ovenfor suppleres af denne sælgerrolle.

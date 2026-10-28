@@ -79,7 +79,8 @@ export function createDemoServer({ token, credentials, now, makeId, storage } = 
         });
         return res.end(asset.content);
       }
-      const role = access.identify(req.headers.authorization);
+      const principal = access.principal(req.headers.authorization);
+      const role = principal?.role;
       if (!role) {
         return reply(res, 401, { error: "UNAUTHORIZED" });
       }
@@ -92,7 +93,37 @@ export function createDemoServer({ token, credentials, now, makeId, storage } = 
       const action = routeAction(req.method, path);
       if (!action) return reply(res, 404, { error: "NOT_FOUND" });
       if (!access.permits(role, action)) return reply(res, 403, { error: "FORBIDDEN" });
-      if (action === "session") return reply(res, 200, { role, syntheticOnly: true });
+      if (action === "session") return reply(res, 200, { ...principal, syntheticOnly: true });
+      const assertLeadAccess = id => {
+        const lead = crm.getLead(id);
+        if (role === 'seller' && (lead.assignee !== principal.sellerId || lead.status === 'withdrawn')) {
+          const error = new Error('NOT_FOUND'); error.code = 'NOT_FOUND'; throw error;
+        }
+        return lead;
+      };
+      if (action === 'team') return reply(res, 200, crm.team());
+      if (action === 'inbox') {
+        const params = new URL(req.url, 'http://127.0.0.1').searchParams;
+        const allowed = ['status','assignee','offset','limit'];
+        if ([...params.keys()].some(key=>!allowed.includes(key)||params.getAll(key).length!==1)) return reply(res, 422, {error:'INVALID_FILTER'});
+        const filters = Object.fromEntries(params);
+        for (const key of ['offset','limit']) if (key in filters) {
+          if (!/^(0|[1-9][0-9]*)$/.test(filters[key])) return reply(res, 422, {error:'INVALID_FILTER'});
+          filters[key] = Number(filters[key]);
+        }
+        if (role === 'seller') {
+          if (filters.assignee && filters.assignee !== principal.sellerId) return reply(res, 403, {error:'FORBIDDEN'});
+          filters.assignee = principal.sellerId;
+        }
+        return reply(res, 200, crm.listLeads(filters));
+      }
+      const assignment = /^\/api\/leads\/(demo-[a-zA-Z0-9-]+)\/assignment$/.exec(path);
+      if (action === 'assignment' && assignment) {
+        const body = await readBody(req);
+        if (!body || Object.keys(body).length!==2 || !Object.hasOwn(body,'assignee') || !Object.hasOwn(body,'expectedAssignee')) return reply(res, 422, {error:'INVALID_ASSIGNMENT'});
+        const lead = crm.assign(assignment[1],body.assignee,body.expectedAssignee);
+        return reply(res, 200, {leadId:lead.id,assignee:lead.assignee});
+      }
       if (req.method === "GET" && path === "/api/slots") return reply(res, 200, crm.availableSlots());
       if (req.method === "GET" && path === "/api/kpi") return reply(res, 200, crm.kpi());
       if (req.method === "POST" && path === "/api/leads") {
@@ -100,13 +131,14 @@ export function createDemoServer({ token, credentials, now, makeId, storage } = 
         return reply(res, result.duplicate ? 200 : 201, result);
       }
       const leadPath = /^\/api\/leads\/(demo-[a-zA-Z0-9-]+)$/.exec(path);
-      if (req.method === "GET" && leadPath) return reply(res, 200, crm.getLead(leadPath[1]));
+      if (req.method === "GET" && leadPath) return reply(res, 200, assertLeadAccess(leadPath[1]));
       const booking = /^\/api\/leads\/(demo-[a-zA-Z0-9-]+)\/booking$/.exec(path);
       if (req.method === "POST" && booking) {
         const body = await readBody(req);
         if (!body || Object.keys(body).length !== 1 || typeof body.slotId !== "string") {
           return reply(res, 422, { error: "INVALID_BOOKING" });
         }
+        assertLeadAccess(booking[1]);
         const lead = crm.book(booking[1], body.slotId);
         return reply(res, 200, { leadId: lead.id, status: lead.status, slotId: lead.booking });
       }
@@ -116,13 +148,14 @@ export function createDemoServer({ token, credentials, now, makeId, storage } = 
         if (!body || Object.keys(body).length !== 1 || typeof body.type !== "string") {
           return reply(res, 422, { error: "INVALID_EVENT" });
         }
+        assertLeadAccess(event[1]);
         const lead = crm.recordEvent(event[1], body.type);
         return reply(res, 200, { leadId: lead.id, status: lead.status });
       }
       return reply(res, 404, { error: "NOT_FOUND" });
     } catch (err) {
       if (err.message?.startsWith("STORE_")) return reply(res, 503, { error: "STORAGE_UNAVAILABLE" });
-      const status = err.status || (err.code === "NOT_FOUND" ? 404 : 422);
+      const status = err.code === "ASSIGNMENT_CONFLICT" ? 409 : err.status || (err.code === "NOT_FOUND" ? 404 : 422);
       return reply(res, status, { error: err.code || err.message || "INVALID_REQUEST" });
     }
   });
@@ -137,13 +170,16 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   if (Boolean(file) !== Boolean(key)) throw new Error("STORE_FILE_AND_KEY_REQUIRED");
   const intakeToken = randomBytes(32).toString("hex");
   const analystToken = randomBytes(32).toString("hex");
-  const server = createDemoServer({ token, credentials: [{ token: intakeToken, role: "intake" }, { token: analystToken, role: "analyst" }], storage: file ? { file, key } : undefined });
+  const seller1 = randomBytes(32).toString("hex"), seller2 = randomBytes(32).toString("hex");
+  const server = createDemoServer({ token, credentials: [{ token: intakeToken, role: "intake" }, { token: analystToken, role: "analyst" }, {token:seller1,role:"seller",sellerId:"demo-seller-1"}, {token:seller2,role:"seller",sellerId:"demo-seller-2"}], storage: file ? { file, key } : undefined });
   for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => server.close());
   server.listen(8787, "127.0.0.1", () => {
     console.log("Synthetic-only demo API on http://127.0.0.1:8787");
     console.log("Temporary operator token:", token);
     console.log("Temporary intake token:", intakeToken);
     console.log("Temporary analyst token:", analystToken);
+    console.log("Temporary Testsælger 1 token:",seller1);
+    console.log("Temporary Testsælger 2 token:",seller2);
     console.log("Never submit real names, numbers, or other personal data.");
   });
 }

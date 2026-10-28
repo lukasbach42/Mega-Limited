@@ -13,6 +13,20 @@ export function campaignFromSearch(search) {
   }
   return input;
 }
+// Interpret a requested time explicitly in Copenhagen; reject invalid or ambiguous DST times.
+export function copenhagenContactTime(local) {
+  if (!local) return null;
+  if (typeof local!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(local)) throw new Error('INVALID_CONTACT_TIME');
+  const wall = Date.parse(local+':00.000Z');
+  if (!Number.isFinite(wall)||new Date(wall).toISOString()!==local+':00.000Z') throw new Error('INVALID_CONTACT_TIME');
+  const formatter = new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Copenhagen',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+  const matches = [60,120].map(offset=>new Date(wall-offset*60000)).filter(date=>{
+    const part=Object.fromEntries(formatter.formatToParts(date).map(p=>[p.type,p.value]));
+    return part.year+'-'+part.month+'-'+part.day+'T'+part.hour+':'+part.minute===local;
+  });
+  if(matches.length!==1) throw new Error('INVALID_CONTACT_TIME');
+  return matches[0].toISOString();
+}
 export function createDemoClient({ token, fetcher = globalThis.fetch }) {
   if (typeof token !== 'string' || token.length < 24) throw new Error('TOKEN_REQUIRED');
   let leadId = null;
@@ -41,6 +55,14 @@ export function createDemoClient({ token, fetcher = globalThis.fetch }) {
   return {
     session: () => request('/api/session'),
     slots: () => request('/api/slots'),
+    inbox: (filters={}) => request('/api/leads?'+new URLSearchParams(filters)),
+    team: () => request('/api/team'),
+    async openLead(id) {
+      if (!/^demo-[a-zA-Z0-9-]+$/.test(id)) throw new Error('INVALID_ID');
+      leadId=null;
+      const result=await request('/api/leads/'+encodeURIComponent(id));leadId=id;return result;
+    },
+    assign: (id,assignee,expectedAssignee) => request('/api/leads/'+encodeURIComponent(id)+'/assignment',{assignee,expectedAssignee}),
     kpi: () => request('/api/kpi'),
     async submit(fields, campaign) {
       leadId = null;
