@@ -1,1 +1,72 @@
-<!doctype html><html lang="da"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Mega – leadøkonomi</title><style>body{font:16px system-ui;max-width:700px;margin:40px auto;padding:20px;background:#f6f6f6}main{background:white;padding:24px;border-radius:14px}label{display:block;margin:15px 0}input{width:110px;padding:8px;float:right}output{font-size:25px;font-weight:700}small{color:#555}</style><main><h1>Leadøkonomi – intern beregner</h1><p>Ændr antagelserne. Alle tal er scenarier, ikke dokumenterede resultater.</p><label>Gennemsnitlig årspræmie (kr.) <input id="premium" type="number" value="10000" min="0"></label><label>Partnerprovision (%) <input id="partner" type="number" value="25" step=".1"></label><label>Sælgerprovision (%) <input id="seller" type="number" value="17.71" step=".01"></label><label>Kontaktgrad (%) <input id="contact" type="number" value="60" step="1"></label><label>Salgsrate blandt kontaktede (%) <input id="close" type="number" value="21" step="1"></label><label>Forventet clawback pr. police (kr.) <input id="clawback" type="number" value="0"></label><label>Andre variable omkostninger pr. police (kr.) <input id="other" type="number" value="0"></label><label>Ønsket dækningsbidrag pr. police (kr.) <input id="target" type="number" value="500"></label><hr><p>Break-even CPL: <output id="be"></output></p><p>Maks. CPL med DB-mål: <output id="max"></output></p><p>DB før leadpris pr. police: <output id="db"></output></p><small>Ingen data sendes eller gemmes. Sælgerprocenten er baseret på tidligere provisionsrapport, ikke en fremtidig partneraftale.</small></main><script>const ids=['premium','partner','seller','contact','close','clawback','other','target'];function calc(){const n=id=>Number(document.getElementById(id).value)||0;const gross=n('premium')*(n('partner')-n('seller'))/100-n('clawback')-n('other');const conversion=Math.min(1,Math.max(0,n('contact')/100))*Math.min(1,Math.max(0,n('close')/100));const money=x=>new Intl.NumberFormat('da-DK',{style:'currency',currency:'DKK',maximumFractionDigits:0}).format(x);document.getElementById('be').textContent=money(Math.max(0,gross*conversion));document.getElementById('max').textContent=money(Math.max(0,(gross-n('target'))*conversion));document.getElementById('db').textContent=money(gross)}ids.forEach(id=>document.getElementById(id).addEventListener('input',calc));calc()</script></html>
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Mega – intern leadøkonomi</title>
+  <style>
+    body{font:16px system-ui,sans-serif;max-width:760px;margin:30px auto;padding:20px;background:#f6f6f6;color:#1d2834}
+    main{background:white;padding:26px;border-radius:14px}
+    label{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0}
+    input{width:105px;padding:8px;font:inherit;border:1px solid #b4b4b4;border-radius:6px}
+    input[type=checkbox]{width:auto}
+    output{font-size:22px;font-weight:700}
+    small{color:#555;line-height:1.6}
+    .result{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #eee}
+    .warning{background:#fff1d6;padding:12px;border-radius:8px}
+  </style>
+</head>
+<body>
+<main>
+  <p class="warning"><strong>INTERN SCENARIEBEREGNER – IKKE LIVE.</strong> Ingen persondata, ingen tracking og ingen annonceforbrug.</p>
+  <h1>Mega – leadøkonomi</h1>
+  <p>7 af 10 sælgere på 17 % og 3 af 10 på 20 % giver <strong>17,9 %</strong> vægtet sælgerprovision af årspræmien. Ændr antagelserne efter behov.</p>
+  <label>Årspræmie (kr.) <input id="premium" type="number" value="10000" min="0"></label>
+  <label>Partnerprovision (%) <input id="partner" type="number" value="25" min="0" max="100" step=".1"></label>
+  <label>Vægtet sælgerprovision (%) <input id="seller" type="number" value="17.9" min="0" max="100" step=".1"></label>
+  <label>Kontaktgrad (%) <input id="contact" type="number" value="60" min="0" max="100"></label>
+  <label>Salgsrate blandt kontaktede (%) <input id="close" type="number" value="21" min="0" max="100"></label>
+  <label>Forventet clawback-sandsynlighed (%) <input id="clawback" type="number" value="5" min="0" max="100"></label>
+  <label>Sælgerprovision kan kræves tilbage ved clawback <input id="recover" type="checkbox"></label>
+  <label>Leadpris / CPL (kr.) <input id="cpl" type="number" value="100" min="0"></label>
+  <label>Andre variable omkostninger pr. police (kr.) <input id="other" type="number" value="0" min="0"></label>
+  <label>DB-mål pr. police (kr.) <input id="target" type="number" value="500" min="0"></label>
+  <hr>
+  <div class="result"><span>Lead → police</span><output id="conversion"></output></div>
+  <div class="result"><span>Forventet clawback pr. police</span><output id="loss"></output></div>
+  <div class="result"><span>Break-even CPL</span><output id="be"></output></div>
+  <div class="result"><span>Maks. CPL ved DB-mål</span><output id="max"></output></div>
+  <div class="result"><span>DB pr. police ved valgt CPL</span><output id="db"></output></div>
+  <p id="error" role="alert"></p>
+  <small>5 % clawback er en illustrativ risiko, ikke en observeret frekvens. Standardberegningen antager konservativt, at partnerprovisionen bortfalder ved clawback, mens sælgerbetalingen ikke genindvindes. Det faktiske aftalegrundlag skal verificeres. De 5.000 kr. i månedligt tilbagehold til modregning er en reserve, ikke omsætning. Ingen data gemmes eller sendes.</small>
+</main>
+<script type="module">
+  import { calculateLeadEconomics } from "./demo-core.mjs";
+  const ids=["premium","partner","seller","contact","close","clawback","cpl","other","target","recover"];
+  const n=id=>Number(document.getElementById(id).value);
+  const money=x=>x===null?"Ikke beregnelig":new Intl.NumberFormat("da-DK",{style:"currency",currency:"DKK",maximumFractionDigits:0}).format(x);
+  function render(){
+    try{
+      const result=calculateLeadEconomics({
+        annualPremium:n("premium"),partnerRate:n("partner"),sellerRate:n("seller"),
+        contactRate:n("contact")/100,closeRate:n("close")/100,
+        clawbackProbability:n("clawback")/100,
+        sellerClawbackRecoverable:document.getElementById("recover").checked,
+        cpl:n("cpl"),fixedCostPerPolicy:n("other"),targetDb:n("target")
+      });
+      document.getElementById("conversion").textContent=(result.conversion*100).toLocaleString("da-DK",{maximumFractionDigits:2})+" %";
+      document.getElementById("loss").textContent=money(result.expectedClawback);
+      document.getElementById("be").textContent=money(result.breakEvenCpl);
+      document.getElementById("max").textContent=money(result.maxCplAtTarget);
+      document.getElementById("db").textContent=money(result.dbPerPolicy);
+      document.getElementById("error").textContent="";
+    }catch{
+      document.getElementById("error").textContent="Kontrollér værdierne – procenttal skal være mellem 0 og 100.";
+    }
+  }
+  ids.forEach(id=>document.getElementById(id).addEventListener("input",render));
+  render();
+</script>
+</body>
+</html>
