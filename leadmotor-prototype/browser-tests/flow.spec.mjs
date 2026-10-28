@@ -7,7 +7,7 @@ const test=base.extend({
     const server=createDemoServer({token:operator,credentials:[{token:intake,role:'intake'},{token:analyst,role:'analyst'},{token:'browser-synthetic-seller-one-token-at-least-24',role:'seller',sellerId:'demo-seller-1'},{token:'browser-synthetic-seller-two-token-at-least-24',role:'seller',sellerId:'demo-seller-2'}]});
     server.listen(0,'127.0.0.1');await once(server,'listening');
     try {await use('http://127.0.0.1:'+server.address().port);}
-    finally {await new Promise(resolve=>server.close(resolve));}
+    finally {await new Promise(resolve=>{server.close(resolve);server.closeAllConnections();});}
   },
 });
 async function login(page,app,token=operator,query='') {
