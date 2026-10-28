@@ -5,3 +5,5 @@
 *.enc.tmp
 .env
 .env.*
+
+*.enc.*.tmp
