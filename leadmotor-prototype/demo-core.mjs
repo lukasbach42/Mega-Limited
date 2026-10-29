@@ -97,7 +97,7 @@ export function createDemoCRM({now=()=>new Date().toISOString(),makeId=()=>`demo
   return {submit,getLead,listLeads,team,assign,availableSlots,book,recordEvent,kpi};
 }
 
-export function calculateLeadEconomics({annualPremium=10000,partnerRate=25,sellerRate=17.9,contactRate=0.6,closeRate=0.21,clawbackProbability=0.05,sellerClawbackRecoverable=false,cpl=100,fixedCostPerPolicy=0,targetDb=500}={}){
+export function calculateLeadEconomics({annualPremium=10000,partnerRate=25,sellerRate=17.7126,contactRate=0.6,closeRate=0.21,clawbackProbability=0.05,sellerClawbackRecoverable=false,cpl=100,fixedCostPerPolicy=0,targetDb=500}={}){
   const numeric={annualPremium,partnerRate,sellerRate,contactRate,closeRate,clawbackProbability,cpl,fixedCostPerPolicy,targetDb};
   if(Object.values(numeric).some(x=>!Number.isFinite(x)||x<0)||partnerRate>100||sellerRate>100||contactRate>1||closeRate>1||clawbackProbability>1) throw new RangeError("INVALID_ECONOMICS_INPUT");
   const conversion=contactRate*closeRate;

@@ -79,13 +79,13 @@ test("stage transitions and channel KPI count events, not current status", () =>
   assert.equal(crm.kpi().byChannel["organic/demo_october"].meetings, 1);
 });
 
-test("economics uses 17/20 weighted rate and conservative clawback", () => {
+test("economics uses actual premium-weighted seller rate and conservative clawback", () => {
   const result = calculateLeadEconomics();
-  assert.equal(result.sellerPay, 1790);
+  assert.ok(Math.abs(result.sellerPay - 1771.26) < 1e-8);
   assert.equal(result.partnerCommission, 2500);
   assert.equal(result.expectedClawback, 125);
-  assert.ok(Math.abs(result.breakEvenCpl - 73.71) < 1e-8);
-  assert.ok(Math.abs(result.dbPerPolicy - (585 - 100 / 0.126)) < 1e-8);
+  assert.ok(Math.abs(result.breakEvenCpl - 76.07124) < 1e-8);
+  assert.ok(Math.abs(result.dbPerPolicy - (603.74 - 100 / 0.126)) < 1e-8);
   const recoverable = calculateLeadEconomics({ sellerClawbackRecoverable: true });
   assert.ok(recoverable.expectedClawback < result.expectedClawback);
   assert.equal(calculateLeadEconomics({ contactRate: 0 }).dbPerPolicy, null);
