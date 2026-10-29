@@ -1,9 +1,57 @@
 <!doctype html>
-<html lang="da"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Mega – leadflow test</title>
-<style>body{font:16px system-ui;background:#f6f5f2;color:#18202a;margin:0}main{max-width:650px;margin:5vh auto;padding:30px;background:white;border-radius:16px}label{display:block;margin:16px 0 5px}input,select,button{box-sizing:border-box;width:100%;padding:13px;border:1px solid #aaa;border-radius:8px;font:inherit}button{background:#132d40;color:white;margin-top:18px}small{color:#555}h1{line-height:1.1}</style>
-<main><small>INTERN PROTOTYPE – IKKE ÅBEN FOR BOOKINGER</small><h1>Få et uforpligtende forsikringstjek</h1><p>Vi arbejder på en mulighed for at bestille et opkald fra Mega Limited. Formularen er endnu ikke åben.</p>
-<form id="f"><label for="name">Navn</label><input id="name" autocomplete="off" required><label for="phone">Telefon</label><input id="phone" type="tel" required><label for="postcode">Postnummer</label><input id="postcode" inputmode="numeric" pattern="[0-9]{4}" required>
-<label for="time">Foretrukket tidspunkt</label><select id="time"><option>Formiddag</option><option>Eftermiddag</option></select>
-<label><input type="checkbox" style="width:auto" required> Jeg ønsker, at Mega Limited kontakter mig om et forsikringstjek. Dette er kun en testvisning.</label>
-<button disabled>Booking åbner senere</button></form><p><small>Ingen oplysninger sendes eller gemmes. Vi aktiverer først booking efter sikker leadmodtagelse, dokumenteret samtykketekst, databeskyttelsesinformation og test af hele flowet.</small></p></main>
+<html lang="da">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><title>Mega – intern test af leadflow</title>
+  <link rel="stylesheet" href="/demo-ui.css"><script type="module" src="/demo-ui.mjs"></script>
+</head>
+<body><main>
+  <header><p class="eyebrow">MEGA LIMITED · INTERN TEST</p><h1>Fra formular til opfølgning</h1>
+  <p>Afprøv et samlet leadflow med kunstige data. Ingen rigtige opkald, kunder eller kalenderaftaler.</p></header>
+  <aside>Kun navne med <strong>Test </strong>, telefon <strong>0000xxxx</strong> og postnummer <strong>0000</strong>. Dette er ikke en offentlig bookingformular.</aside>
+  <section aria-labelledby="access-heading"><h2 id="access-heading">1. Åbn testsession</h2>
+    <form id="access-form"><label for="token">Midlertidig testadgang fra demoserveren</label>
+    <input id="token" type="password" autocomplete="off" required minlength="24">
+    <button type="submit">Åbn test</button></form>
+    <p id="session-status" role="status">Ingen testsession åben.</p><button id="disconnect" type="button" hidden>Luk testsession</button>
+  </section>
+  <section id="inbox" aria-labelledby="inbox-heading" hidden><h2 id="inbox-heading">Leadindbakke</h2>
+    <p id="inbox-description">Fordel henvendelser til egne sælgere. Der sendes ingen mails eller kundedata til andre virksomheder.</p>
+    <form id="inbox-filter-form"><label for="inbox-status">Status</label><select id="inbox-status"><option value="active">Aktive henvendelser</option><option value="new">Nye</option><option value="contacted">Kontaktet</option><option value="booked">Testbooket</option><option value="withdrawn">Frabedelser</option><option value="all">Alle</option></select>
+    <div id="owner-filter"><label for="inbox-owner">Fordeling</label><select id="inbox-owner"><option value="all">Alle sælgere</option><option value="unassigned">Ikke fordelt</option></select></div>
+    <button id="refresh-inbox" type="submit">Opdater indbakke</button></form>
+    <p id="inbox-status-text" role="status"></p><div class="table-scroll"><table><thead><tr><th>Kunde (test)</th><th>Ønsket kontakt</th><th>Status / kilde</th><th>Ansvarlig sælger</th><th>Åbn lead</th></tr></thead><tbody id="inbox-rows"></tbody></table></div>
+    <div class="pager"><button id="inbox-prev" type="button" disabled>Forrige side</button><button id="inbox-next" type="button" disabled>Næste side</button></div>
+  </section>
+  <section id="intake" aria-labelledby="lead-heading" hidden><h2 id="lead-heading">2. Gem et kunstigt lead</h2>
+    <form id="lead-form"><fieldset id="lead-fields"><legend>Testoplysninger</legend>
+    <label for="name">Testnavn</label><input id="name" name="name" value="Test Kunde1" pattern="Test [A-Za-z0-9 \-]{2,60}" maxlength="65" autocomplete="off" required>
+    <label for="phone">Testtelefon</label><input id="phone" name="phone" type="tel" value="00000001" pattern="0000[0-9]{4}" maxlength="8" autocomplete="off" required>
+    <label for="postcode">Testpostnummer</label><input id="postcode" name="postcode" value="0000" readonly>
+    <label for="preferred_contact">Kontaktvindue</label><select id="preferred_contact" name="preferred_contact"><option value="formiddag">Formiddag</option><option value="eftermiddag">Eftermiddag</option></select>
+    <label for="requested-contact">Ønsket kontakttid (valgfrit, dansk tid)</label><input id="requested-contact" type="datetime-local" step="60"><small>Et ønske om et opkald — ingen bekræftet aftale.</small>
+    <label for="source">Kanal</label><select id="source" name="source"><option value="test">Intern test</option><option value="organic">Organisk</option><option value="direct">Direkte</option><option value="referral">Henvisning</option></select>
+    <label for="utm_source">UTM-kilde</label><input id="utm_source" name="utm_source" maxlength="80" pattern="[a-zA-Z0-9._\-]*" autocomplete="off">
+    <label for="utm_medium">UTM-medie</label><input id="utm_medium" name="utm_medium" maxlength="80" pattern="[a-zA-Z0-9._\-]*" autocomplete="off">
+    <label for="utm_campaign">UTM-kampagne</label><input id="utm_campaign" name="utm_campaign" maxlength="80" pattern="[a-zA-Z0-9._\-]*" autocomplete="off">
+    <p>Testsamtykke · version demo-v1:</p><blockquote>DEMO ONLY: I consent to a simulated contact from Mega Limited. No real booking or outreach.</blockquote>
+    <label class="check"><input id="consent" type="checkbox" required> Jeg bekræfter kun dette simulerede testsamtykke.</label>
+    <button type="submit">Gem testlead</button></fieldset></form>
+    <p id="lead-status" role="status"></p>
+  </section>
+  <section id="booking" aria-labelledby="booking-heading" hidden><h2 id="booking-heading">3. Reserver et testslot</h2>
+    <p>Leadet er gemt. En booking er først registreret, når serveren bekræfter den.</p>
+    <form id="booking-form"><label for="slot">Ledigt kunstigt slot</label><select id="slot" required></select><button id="book-button" type="submit">Reserver testslot</button></form>
+    <button id="refresh-slots" type="button">Opdater ledige testslots</button><p id="booking-status" role="status"></p>
+  </section>
+  <section id="crm" aria-labelledby="crm-heading" hidden><h2 id="crm-heading">4. Kontrollér CRM og samtykke</h2>
+    <pre id="lead-record">Gem et testlead for at se hændelsesloggen.</pre>
+    <form id="event-form"><label for="event">Næste testhændelse</label><select id="event"><option value="contacted">Kontaktet</option><option value="meeting_held">Møde afholdt</option><option value="policy_issued">Police udstedt (simuleret)</option><option value="clawback">Clawback (simuleret)</option><option value="consent_withdrawn">Samtykke trukket tilbage</option></select>
+    <button id="event-button" type="submit" disabled>Registrer testhændelse</button></form>
+  </section>
+  <section id="reporting" aria-labelledby="kpi-heading" hidden><h2 id="kpi-heading">Nøgletal for testdata</h2>
+    <button id="refresh-kpi" type="button">Opdater KPI</button><pre id="kpi"></pre>
+  </section>
+  <p id="error" role="alert"></p>
+  <footer>Testadgang og aktivt lead opbevares kun i sidens hukommelse. Krypteret serverlagring kræver særskilt lokal opsætning. Ingen analyseværktøjer eller eksterne integrationer er tilsluttet.</footer>
+</main></body></html>

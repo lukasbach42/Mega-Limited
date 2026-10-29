@@ -5,16 +5,16 @@
 ## Hvad der virker i prototypen
 
 - `demo-core.mjs`: in-memory CRM-state machine med stram validering, syntetiske testdata, versioneret samtykkelog, UTM, telefon-deduplikering, demo-booking, frabedelser og KPI per kanal/kampagne.
-- `demo-server.mjs`: HTTP API **kun på 127.0.0.1**, med tidsbegrænset process-token, adgangskontrol, body-size limit, rate limit og Host/Origin-tjek. Ingen data skrives til disk.
+- `demo-server.mjs`: HTTP API **kun på 127.0.0.1**, med tidsbegrænset process-token, adgangskontrol, body-size limit, rate limit og Host/Origin-tjek. Valgfri krypteret lagring er beskrevet nedenfor; uden lagringsopsætning skrives ingen data til disk.
 - `demo-core.test.mjs`: automatiserede tests af CRM, økonomi, samtykke, dubletter, booking, overgangsregler og HTTP-adgang.
-- `economics.html`: scenarieregner med 25 % historisk partnerprovision, faktisk præmievægtet **17,7126 %** sælgerbetaling (8 på 17 %, 3 på 20 %, baseret på 11 personrækker), clawback, CPL og DB. Provisionsgrundlaget er årspræmien. De 5.000 kr. pr. sælger i modregningsreserve er ikke indtægt.
+- `economics.html`: scenarieregner med 25 % historisk partnerprovision, præmievægtet **17,7126 %** sælgerbetaling (8 på 17 %, 3 på 20 %, baseret på 11 historiske personrækker), clawback, CPL og DB. Provisionsgrundlaget er årspræmien. De 5.000 kr. pr. sælger i modregningsreserve er ikke indtægt.
 
 ## Sådan testes lokalt
 
 Kræver Node.js 22 eller nyere; ingen tredjepartsafhængigheder:
 
 ```sh
-node --test leadmotor-prototype/demo-core.test.mjs
+node --test leadmotor-prototype/*.test.mjs
 node leadmotor-prototype/demo-server.mjs
 ```
 
@@ -59,3 +59,36 @@ Den gamle `/forsikringstjek/`-side omtaler Topdanmark og sender til en Topdanmar
 2. Integrér partnerneutral frontend og rigtig booking med dokumenteret kapacitet, og udfør end-to-end-tests uden rigtige persondata.
 3. Etablér kanal-/kampagne-KPI og stopregler på **faktisk** valid-lead-rate, kontaktgrad, policekonvertering og 6-måneders clawback.
 4. Juridisk godkendelse og partneraftale før offentlig aktivering. Meta er ikke en forudsætning; organiske og partnergodkendte kanaler kan valideres separat.
+
+## Persistent synthetic CRM (follow-up to draft PR #1)
+
+Optional encrypted local storage now survives a clean server restart. This is still a **synthetic-only localhost prototype**, not a production CRM.
+
+1. Create a private directory **outside this repository and every static hosting root**. Only the local operator should have access (Windows: set directory ACLs; POSIX: directory mode 700). The file mode 600 used by the code does not establish Windows ACLs.
+2. Set `DEMO_STORE_FILE` to an absolute file path in that directory and `DEMO_STORE_KEY` to a securely generated 32-byte key encoded as 64 hex characters. Keep the key outside the data directory, repository and logs. Both variables must be set together. Missing key material prevents startup; never generate a replacement key for an existing store.
+3. Run `node leadmotor-prototype/demo-server.mjs`. Without both variables the original in-memory demo remains available. The temporary Bearer token changes on restart; the encryption key must stay the same.
+4. Run all tests with `node --test leadmotor-prototype/*.test.mjs`.
+
+`GET /api/leads/:id` now returns a lead and its versioned consent/event history, behind the same Bearer, loopback, Host and Origin controls as every other endpoint. Consent, first-touch UTM, duplicate suppression, slot reservations, withdrawals and historical KPI are rebuilt from the encrypted command log after restart. Duplicate submissions do not append commands or overwrite attribution/consent.
+
+Storage uses AES-256-GCM authenticated encryption with a fresh nonce per write. A validated candidate is written to an exclusive temporary file, flushed and renamed before the mutation is acknowledged or memory is replaced. Invalid requests, failed writes, corrupted ciphertext and wrong keys fail closed. Storage failures return a generic HTTP 503 without filesystem details. A single-writer lock prevents two processes opening the same path.
+
+Stop with Ctrl+C for a clean close. After a crash, the `.lock` and possibly `.tmp` file deliberately require operator inspection: establish that no writer is running, preserve files for recovery, and only then remove stale files. Never delete the committed encrypted file to bypass a startup error. Use a local filesystem; network shares are unsupported. The current implementation rewrites/replays the complete log and is suitable only for small demo datasets. File flush and atomic replacement do not guarantee survival of every filesystem/power failure; offline backup/restore is documented in RECOVERY.md; automatic/offsite backup and key rotation are not implemented.
+
+Remaining production work: managed identity and roles, durable transactional database, operational backup scheduling/offsite recovery, deletion and retention policy, approved consent text, real calendar capacity and deployment review. No external calendar, outreach, ad spend or production deployment was added.
+
+## Backup og gendannelse af testdata
+
+`store-maintenance.mjs` kan kontrollere og kopiere det krypterede test-CRM til en ny backupfil samt gendanne til en ny CRM-fil. Serveren skal være stoppet. Ingen eksisterende filer overskrives. Se [RECOVERY.md](RECOVERY.md) for arbejdsgang, begrænsninger og kontrol efter gendannelse.
+
+## Samlet testflow og adgangsroller
+
+Start demoserveren og åbn dens localhost-adresse. Formular, testsamtykke, UTM, CRM, testbooking og KPI er nu forbundet med separate intake/operator/analyst-roller. Se [TEST-FLOW.md](TEST-FLOW.md). Resterende konkrete afhængigheder før rigtige leads er samlet i [LAUNCH-READINESS.md](LAUNCH-READINESS.md). Testgrænsefladen er ikke en offentlig kundeside.
+
+## Indbakke og egne sælgere
+
+En operator kan nu se og fordele testleads; hver seller-testadgang er bundet til en af de to interne testsælgere og giver kun adgang til aktuelt tildelte leads. Ønsket kontakttid, konfliktkontrol og fordelingshistorik er beskrevet i [INBOX.md](INBOX.md). Den oprindelige rolletabel ovenfor suppleres af denne sælgerrolle.
+
+## Valgt adgang: kun ejeren
+
+Normal serverstart udsteder nu kun én midlertidig ejeradgang. Sælgerne bruges som interne fordelingsnavne, uden egne links eller logins. Ingen sælgerinvitationer eller mails oprettes. Ejerens produktionslogin og hosting mangler stadig; se [INBOX.md](INBOX.md).

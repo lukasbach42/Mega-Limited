@@ -1,3 +1,4 @@
+import { DEMO_SELLERS, isDemoSeller } from './demo-team.mjs';
 // Mega Limited: synthetic-only in-memory prototype. NOT a production CRM. Never supply real personal data.
 export function createDemoCRM({now=()=>new Date().toISOString(),makeId=()=>`demo-${Math.random().toString(36).slice(2,14)}`}={}) {
   const leads=new Map(), phones=new Map(), reservations=new Map();
@@ -12,23 +13,43 @@ export function createDemoCRM({now=()=>new Date().toISOString(),makeId=()=>`demo
   const snapshot=lead=>JSON.parse(JSON.stringify(lead));
   function submit(input){
     if(!input||typeof input!=="object"||Array.isArray(input)) fail("INVALID_INPUT");
-    const allowed=["name","phone","postcode","preferred_contact","consent","consent_text_version","source","utm_source","utm_medium","utm_campaign"];
+    const allowed=["name","phone","postcode","preferred_contact","requested_contact_at","consent","consent_text_version","source","utm_source","utm_medium","utm_campaign"];
     if(Object.keys(input).some(key=>!allowed.includes(key))) fail("UNKNOWN_FIELD");
     if(typeof input.name!=="string"||!/^Test [A-Za-z0-9 -]{2,60}$/.test(input.name)) fail("SYNTHETIC_ONLY");
     if(typeof input.phone!=="string"||!/^0000[0-9]{4}$/.test(input.phone)||input.postcode!=="0000") fail("SYNTHETIC_ONLY");
     if(input.consent!==true||input.consent_text_version!=="demo-v1") fail("CONSENT_REQUIRED");
     if(!["formiddag","eftermiddag"].includes(input.preferred_contact)) fail("INVALID_CONTACT_WINDOW");
     if(!["test","organic","direct","referral"].includes(input.source)) fail("INVALID_SOURCE");
+    const requestedContactAt=input.requested_contact_at??null;
+    if(requestedContactAt!==null && (typeof requestedContactAt!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:00\.000Z$/.test(requestedContactAt)||!Number.isFinite(Date.parse(requestedContactAt))||new Date(requestedContactAt).toISOString()!==requestedContactAt)) fail('INVALID_CONTACT_TIME');
     const utm={source:tracking(input.utm_source),medium:tracking(input.utm_medium),campaign:tracking(input.utm_campaign)};
     if(phones.has(input.phone)) return {duplicate:true,leadId:phones.get(input.phone)};
     const id=makeId();
     if(typeof id!=="string"||!id.startsWith("demo-")||leads.has(id)) fail("INVALID_ID");
     const timestamp=now();
-    const lead={id,name:input.name,phone:input.phone,postcode:"0000",preferredContact:input.preferred_contact,source:input.source,utm,status:"new",booking:null,events:[{type:"consent_recorded",at:timestamp,consentTextVersion:"demo-v1",consentText}]};
+    const lead={id,name:input.name,phone:input.phone,postcode:"0000",preferredContact:input.preferred_contact,requestedContactAt,assignee:null,source:input.source,utm,status:"new",booking:null,events:[{type:"consent_recorded",at:timestamp,consentTextVersion:"demo-v1",consentText}]};
     leads.set(id,lead);phones.set(input.phone,id);
     return {duplicate:false,leadId:id};
   }
   function getLead(id){const lead=leads.get(id);if(!lead) fail("NOT_FOUND");return snapshot(lead);}
+  function team(){return snapshot(DEMO_SELLERS);}
+  function listLeads({status='active',assignee='all',offset=0,limit=25}={}){
+    const statuses=['active','all','new','booked','contacted','meeting_held','policy_issued','clawback','withdrawn'];
+    if(!statuses.includes(status)||!['all','unassigned',...DEMO_SELLERS.map(s=>s.id)].includes(assignee)||!Number.isInteger(offset)||offset<0||!Number.isInteger(limit)||limit<1||limit>50) fail('INVALID_FILTER');
+    const matches=[...leads.values()].filter(lead=>(status==='all'||(status==='active'?lead.status!=='withdrawn':lead.status===status))&&(assignee==='all'||(assignee==='unassigned'?lead.assignee===null:lead.assignee===assignee)));
+    matches.reverse();
+    return {total:matches.length,offset,limit,items:matches.slice(offset,offset+limit).map(lead=>snapshot({id:lead.id,name:lead.name,phone:lead.phone,preferredContact:lead.preferredContact,requestedContactAt:lead.requestedContactAt,assignee:lead.assignee,status:lead.status,booking:lead.booking,source:lead.source,utm:lead.utm,createdAt:lead.events[0].at}))};
+  }
+  function assign(id,assignee,expectedAssignee){
+    const lead=leads.get(id);if(!lead) fail('NOT_FOUND');
+    if(lead.status==='withdrawn') fail('CONSENT_WITHDRAWN');
+    if((assignee!==null&&!isDemoSeller(assignee))||(expectedAssignee!==null&&!isDemoSeller(expectedAssignee))) fail('INVALID_ASSIGNEE');
+    if(lead.assignee!==expectedAssignee) fail('ASSIGNMENT_CONFLICT');
+    if(lead.assignee===assignee) return getLead(id);
+    const previousAssignee=lead.assignee;
+    lead.assignee=assignee;lead.events.push({type:'assigned',at:now(),previousAssignee,assignee});
+    return getLead(id);
+  }
   function availableSlots(){return slots.map(id=>({id,available:!reservations.has(id),kind:"synthetic_only"}));}
   function book(id,slotId){
     const lead=leads.get(id);if(!lead) fail("NOT_FOUND");
@@ -53,7 +74,7 @@ export function createDemoCRM({now=()=>new Date().toISOString(),makeId=()=>`demo
     if(!valid[type].includes(lead.status)) fail("INVALID_TRANSITION");
     if(type==="consent_withdrawn"){
       if(lead.booking){reservations.delete(lead.booking);lead.booking=null;}
-      lead.status="withdrawn";
+      lead.assignee=null;lead.status="withdrawn";
     } else lead.status=type;
     lead.events.push({type,at:now()});
     return getLead(id);
@@ -73,7 +94,7 @@ export function createDemoCRM({now=()=>new Date().toISOString(),makeId=()=>`demo
     }
     return {leads:all.length,contacted:count("contacted"),meetings:count("meeting_held"),policies:count("policy_issued"),clawbacks:count("clawback"),withdrawn:count("consent_withdrawn"),byChannel,disclaimer:"Synthetic test data only; no 6-month retention or real conversion data."};
   }
-  return {submit,getLead,availableSlots,book,recordEvent,kpi};
+  return {submit,getLead,listLeads,team,assign,availableSlots,book,recordEvent,kpi};
 }
 
 export function calculateLeadEconomics({annualPremium=10000,partnerRate=25,sellerRate=17.7126,contactRate=0.6,closeRate=0.21,clawbackProbability=0.05,sellerClawbackRecoverable=false,cpl=100,fixedCostPerPolicy=0,targetDb=500}={}){
