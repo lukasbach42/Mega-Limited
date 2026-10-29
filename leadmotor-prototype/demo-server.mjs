@@ -4,6 +4,7 @@ import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createDemoCRM } from "./demo-core.mjs";
+import { createJournalDemoCRM } from "./demo-journal.mjs";
 
 const MAX_BODY_BYTES = 4096;
 const jsonHeaders = {
@@ -45,9 +46,10 @@ async function readBody(req) {
   }
 }
 
-export function createDemoServer({ token, now, makeId } = {}) {
+export function createDemoServer({ token, now, makeId, storageFile } = {}) {
   if (typeof token !== "string" || token.length < 24) throw new Error("STRONG_DEMO_TOKEN_REQUIRED");
-  const crm = createDemoCRM({ now, makeId: makeId || (() => "demo-" + randomUUID()) });
+  const options = { now, makeId: makeId || (() => "demo-" + randomUUID()) };
+  const crm = storageFile ? createJournalDemoCRM({ ...options, filePath: storageFile }) : createDemoCRM(options);
   const windows = new Map();
   const server = http.createServer(async (req, res) => {
     try {
@@ -102,7 +104,7 @@ export function createDemoServer({ token, now, makeId } = {}) {
       }
       return reply(res, 404, { error: "NOT_FOUND" });
     } catch (err) {
-      const status = err.status || (err.code === "NOT_FOUND" ? 404 : 422);
+      const status = err.status || (err.code === "NOT_FOUND" ? 404 : err.code === "STORAGE_UNAVAILABLE" ? 503 : 422);
       return reply(res, status, { error: err.code || err.message || "INVALID_REQUEST" });
     }
   });
@@ -111,7 +113,7 @@ export function createDemoServer({ token, now, makeId } = {}) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const token = randomBytes(32).toString("hex");
-  const server = createDemoServer({ token });
+  const server = createDemoServer({ token, storageFile: process.env.MEGA_DEMO_JOURNAL || undefined });
   server.listen(8787, "127.0.0.1", () => {
     console.log("Synthetic-only demo API on http://127.0.0.1:8787");
     console.log("Temporary Bearer token (local development only):", token);
