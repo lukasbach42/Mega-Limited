@@ -5,7 +5,9 @@
 ## Hvad der virker i prototypen
 
 - `demo-core.mjs`: in-memory CRM-state machine med stram validering, syntetiske testdata, versioneret samtykkelog, UTM, telefon-deduplikering, demo-booking, frabedelser og KPI per kanal/kampagne.
-- `demo-server.mjs`: HTTP API **kun på 127.0.0.1**, med tidsbegrænset process-token, adgangskontrol, body-size limit, rate limit og Host/Origin-tjek. Ingen data skrives til disk.
+- `demo-server.mjs`: HTTP API **kun på 127.0.0.1**, med tidsbegrænset process-token, adgangskontrol, body-size limit, rate limit og Host/Origin-tjek. Som standard kun i hukommelsen; kan **valgfrit** gemme syntetiske hændelser lokalt.
+- `demo-journal.mjs`: lokal append-only journal til **syntetiske** leads, samtykkehændelser, booking og status; genindlæses ved genstart. Fil oprettes med adgangsrettighed `0600`; korrupt eller usikkert tilgængelig fil afvises. Ingen kryptering, backup, retention eller flerproceslås – **ikke til produktion**.
+- `demo-journal.test.mjs` og `demo-server-journal.test.mjs`: tests af genstart, deduplikering, samtykke, frabedelser, filrettigheder og HTTP-end-to-end.
 - `demo-core.test.mjs`: automatiserede tests af CRM, økonomi, samtykke, dubletter, booking, overgangsregler og HTTP-adgang.
 - `economics.html`: scenarieregner med 25 % historisk partnerprovision, faktisk præmievægtet **17,7126 %** sælgerbetaling (8 på 17 %, 3 på 20 %, baseret på 11 personrækker), clawback, CPL og DB. Provisionsgrundlaget er årspræmien. De 5.000 kr. pr. sælger i modregningsreserve er ikke indtægt.
 
@@ -14,7 +16,7 @@
 Kræver Node.js 22 eller nyere; ingen tredjepartsafhængigheder:
 
 ```sh
-node --test leadmotor-prototype/demo-core.test.mjs
+node --test leadmotor-prototype/*.test.mjs
 node leadmotor-prototype/demo-server.mjs
 ```
 
@@ -26,6 +28,8 @@ curl -s http://127.0.0.1:8787/api/leads \
   -H 'Content-Type: application/json' \
   --data '{"name":"Test Kunde1","phone":"00000001","postcode":"0000","preferred_contact":"formiddag","consent":true,"consent_text_version":"demo-v1","source":"organic","utm_campaign":"demo_october"}'
 ```
+
+**Valgfri lokal persistens (kun test):** Opret en privat lokal mappe uden for Git-repositoriet og start med `MEGA_DEMO_JOURNAL=/absolut/privat/sti/demo.journal node leadmotor-prototype/demo-server.mjs`. Uden denne variabel er CRM fortsat in-memory. Journalen må aldrig indeholde rigtige persondata og skal slettes manuelt efter testen. Ved korrupt journal nægter serveren at starte; ved diskfejl stopper journalen yderligere ændringer. Journalen er ikke krypteret og er ikke et produktions-CRM.
 
 Testdata skal **altid** have navne der begynder med `Test `, telefonnumre `0000xxxx` og postnummer `0000`. API afviser rigtige telefonnumre/postnumre og ukendte felter. Demoslots `demo-slot-1` og `demo-slot-2` er ikke kalenderaftaler.
 
@@ -49,7 +53,7 @@ Formler: konvertering = kontaktgrad × salgsrate; DB pr. police = partnerprovisi
 
 ## Stop før drift
 
-Denne prototype er **ikke** et sikkert produktions-CRM: den mangler krypteret persistent database, rollebaseret adgang, backupløsning, revisionsspor, slettefrister, databehandleraftaler, juridisk godkendt kundetekst, rigtig bookingkalender, identitets-/sessionsstyring, monitorering og driftsmiljø. Der er ingen valideret markedsføringshjemmel eller partnerneutral produktadgang. **Ingen offentliggørelse eller behandling af reelle leads** før disse punkter er løst og godkendt.
+Denne prototype er **ikke** et sikkert produktions-CRM: den mangler en krypteret produktionsdatabase (den lokale journal er kun en syntetisk test), rollebaseret adgang, backupløsning, revisionsspor, slettefrister, databehandleraftaler, juridisk godkendt kundetekst, rigtig bookingkalender, identitets-/sessionsstyring, monitorering og driftsmiljø. Der er ingen valideret markedsføringshjemmel eller partnerneutral produktadgang. **Ingen offentliggørelse eller behandling af reelle leads** før disse punkter er løst og godkendt.
 
 Den gamle `/forsikringstjek/`-side omtaler Topdanmark og sender til en Topdanmark-mail; den må ikke genbruges som partnerneutral kanal.
 
