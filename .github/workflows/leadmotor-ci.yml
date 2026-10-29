@@ -1,0 +1,25 @@
+name: Mega leadmotor synthetic tests
+on:
+  pull_request:
+    paths:
+      - 'leadmotor-prototype/**'
+      - '.github/workflows/leadmotor-ci.yml'
+  push:
+    branches:
+      - 'leadmotor-sikker-prototype-2026-10-28'
+    paths:
+      - 'leadmotor-prototype/**'
+      - '.github/workflows/leadmotor-ci.yml'
+permissions:
+  contents: read
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify no third-party dependencies or real data
+        run: node --test leadmotor-prototype/demo-core.test.mjs
