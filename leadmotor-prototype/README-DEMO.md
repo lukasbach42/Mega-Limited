@@ -7,7 +7,7 @@
 - `demo-core.mjs`: in-memory CRM-state machine med stram validering, syntetiske testdata, versioneret samtykkelog, UTM, telefon-deduplikering, demo-booking, frabedelser og KPI per kanal/kampagne.
 - `demo-server.mjs`: HTTP API **kun på 127.0.0.1**, med tidsbegrænset process-token, adgangskontrol, body-size limit, rate limit og Host/Origin-tjek. Ingen data skrives til disk.
 - `demo-core.test.mjs`: automatiserede tests af CRM, økonomi, samtykke, dubletter, booking, overgangsregler og HTTP-adgang.
-- `economics.html`: scenarieregner med 25 % historisk partnerprovision, vægtet **17,9 %** sælgerbetaling (7 på 17 %, 3 på 20 %), clawback, CPL og DB. Provisionsgrundlaget er årspræmien. De 5.000 kr. pr. sælger i modregningsreserve er ikke indtægt.
+- `economics.html`: scenarieregner med 25 % historisk partnerprovision, faktisk præmievægtet **17,7126 %** sælgerbetaling (8 på 17 %, 3 på 20 %, baseret på 11 personrækker), clawback, CPL og DB. Provisionsgrundlaget er årspræmien. De 5.000 kr. pr. sælger i modregningsreserve er ikke indtægt.
 
 ## Sådan testes lokalt
 
@@ -43,7 +43,7 @@ Alle endpoints kræver Bearer-token. Ingen tredjepartsintegrationer og ingen uds
 
 ## Økonomimodel og forbehold
 
-Standardscenarie: årspræmie 10.000 kr., partnerprovision 25 %, sælgerbetaling 17,9 %, kontaktgrad 60 %, salgsrate blandt kontaktede 21 %, clawback-sandsynlighed 5 %, CPL 100 kr. Forventet clawback beregnes konservativt som 5 % af **hele partnerprovisionen**, fordi sælgerprovision ikke antages tilbagekrævet. Dette er en **antagelse**, ikke en konstateret tabsprocent eller ny partneraftale.
+Standardscenarie: årspræmie 10.000 kr., partnerprovision 25 %, sælgerbetaling 17,7126 %, kontaktgrad 60 %, salgsrate blandt kontaktede 21 %, clawback-sandsynlighed 5 %, CPL 100 kr. Forventet clawback beregnes konservativt som 5 % af **hele partnerprovisionen**, fordi sælgerprovision ikke antages tilbagekrævet. Dette er en **antagelse**, ikke en konstateret tabsprocent eller ny partneraftale.
 
 Formler: konvertering = kontaktgrad × salgsrate; DB pr. police = partnerprovision − sælgerbetaling − forventet clawback − andre variable omkostninger − CPL/konvertering. Hvis konverteringen er nul, er DB pr. police ikke beregnelig.
 
