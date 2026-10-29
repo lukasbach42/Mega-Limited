@@ -6,7 +6,7 @@ Start fra repositoriets rod:
 node leadmotor-prototype/demo-server.mjs
 ```
 
-Åbn `http://127.0.0.1:8787/` i en browser på samme computer. Brug en af de tre midlertidige testadgange, serveren udskriver lokalt. Hver genstart giver nye tokens. Del ikke tokens via URL'er, Git eller screenshots. Valgfri krypteret serverlagring og recovery er beskrevet i README-DEMO.md og RECOVERY.md.
+Åbn `http://127.0.0.1:8787/` i en browser på samme computer. Brug den ene midlertidige ejeradgang, serveren udskriver lokalt. Standardopsætningen har ingen sælgerlinks eller separate sælgertokens; de udvidede testroller i tabellen nedenfor bruges kun ved eksplicit konfiguration, bl.a. i regressionstests. Hver genstart giver nye tokens. Del ikke tokens via URL'er, Git eller screenshots. Valgfri krypteret serverlagring og recovery er beskrevet i README-DEMO.md og RECOVERY.md.
 
 | Testrolle | Modtag lead | Testslots/booking | Læs lead/samtykke | Registrer hændelser | KPI |
 |---|---|---|---|---|---|

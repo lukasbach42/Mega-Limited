@@ -98,3 +98,16 @@ test('persistent inbox assignment and requested time survive restart and encrypt
   const backupFile=join(dir,'backup.enc');backupDemoStore({...storage,backupFile});const restored=join(dir,'restored.enc');restoreDemoStore({...storage,file:restored,backupFile});
   crm=createPersistentCRM({...storage,file:restored});try{assert.deepEqual(crm.getLead(id),before);assert.equal(crm.listLeads({assignee:'demo-seller-1'}).total,1);}finally{crm.close();}
 });
+
+test('HTTP owner-operated inbox keeps assignment labels without creating seller access',async t=>{
+  const server=createDemoServer({token:op});server.listen(0,'127.0.0.1');await once(server,'listening');
+  t.after(()=>new Promise(resolve=>{server.close(resolve);server.closeAllConnections();}));
+  const url='http://127.0.0.1:'+server.address().port;
+  const req=(token,path,body)=>fetch(url+path,{method:body===undefined?'GET':'POST',headers:{Authorization:'Bearer '+token,...(body===undefined?{}:{'Content-Type':'application/json'})},...(body===undefined?{}:{body:JSON.stringify(body)})});
+  const id=(await (await req(op,'/api/leads',input(1))).json()).leadId;
+  assert.equal((await req(op,'/api/leads/'+id+'/assignment',{assignee:'demo-seller-1',expectedAssignee:null})).status,200);
+  assert.equal((await (await req(op,'/api/leads')).json()).items[0].assignee,'demo-seller-1');
+  assert.equal((await req(s1,'/api/leads')).status,401);
+  assert.equal((await req(s2,'/api/leads/'+id)).status,401);
+  assert.deepEqual(await (await req(op,'/api/session')).json(),{role:'operator',syntheticOnly:true});
+});

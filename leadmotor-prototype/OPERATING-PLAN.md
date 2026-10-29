@@ -18,3 +18,7 @@ Sikker endpoint/CRM og hosting, juridisk godkendt samtykke og privacy notice, ak
 ## Valgt opfølgning
 
 Ejeren modtager og fordeler henvendelser til egne sælgere i en beskyttet leadindbakke. Kunden angiver en ønsket kontakttid; det er ikke en bekræftet booking. Sælgeren kontakter og bekræfter manuelt, så ekstern kalenderintegration ikke er en forudsætning for denne arbejdsgang. Den syntetiske implementation og adgangsgrænser er beskrevet i [INBOX.md](INBOX.md).
+
+## Ejeradgang uden sælgerlogins
+
+Ejeren ønsker selv at styre hele indbakken. Sælgerne er derfor kun fordelingsnavne; der kræves ingen sælgermails, konti, invitationer eller personlige links. Standardstart af testserveren udsteder kun ejer-token. Ekstra roller er alene eksplicit testkonfiguration.

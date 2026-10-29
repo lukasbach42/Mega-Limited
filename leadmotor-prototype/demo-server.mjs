@@ -168,18 +168,12 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const file = process.env.DEMO_STORE_FILE;
   const key = process.env.DEMO_STORE_KEY;
   if (Boolean(file) !== Boolean(key)) throw new Error("STORE_FILE_AND_KEY_REQUIRED");
-  const intakeToken = randomBytes(32).toString("hex");
-  const analystToken = randomBytes(32).toString("hex");
-  const seller1 = randomBytes(32).toString("hex"), seller2 = randomBytes(32).toString("hex");
-  const server = createDemoServer({ token, credentials: [{ token: intakeToken, role: "intake" }, { token: analystToken, role: "analyst" }, {token:seller1,role:"seller",sellerId:"demo-seller-1"}, {token:seller2,role:"seller",sellerId:"demo-seller-2"}], storage: file ? { file, key } : undefined });
+  // Owner-operated inbox: seller names are assignment labels, not login accounts.
+  const server = createDemoServer({ token, storage: file ? { file, key } : undefined });
   for (const signal of ["SIGINT", "SIGTERM"]) process.once(signal, () => server.close());
   server.listen(8787, "127.0.0.1", () => {
     console.log("Synthetic-only demo API on http://127.0.0.1:8787");
-    console.log("Temporary operator token:", token);
-    console.log("Temporary intake token:", intakeToken);
-    console.log("Temporary analyst token:", analystToken);
-    console.log("Temporary Testsælger 1 token:",seller1);
-    console.log("Temporary Testsælger 2 token:",seller2);
+    console.log("Temporary owner token:", token);
     console.log("Never submit real names, numbers, or other personal data.");
   });
 }

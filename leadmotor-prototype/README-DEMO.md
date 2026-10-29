@@ -88,3 +88,7 @@ Start demoserveren og åbn dens localhost-adresse. Formular, testsamtykke, UTM, 
 ## Indbakke og egne sælgere
 
 En operator kan nu se og fordele testleads; hver seller-testadgang er bundet til en af de to interne testsælgere og giver kun adgang til aktuelt tildelte leads. Ønsket kontakttid, konfliktkontrol og fordelingshistorik er beskrevet i [INBOX.md](INBOX.md). Den oprindelige rolletabel ovenfor suppleres af denne sælgerrolle.
+
+## Valgt adgang: kun ejeren
+
+Normal serverstart udsteder nu kun én midlertidig ejeradgang. Sælgerne bruges som interne fordelingsnavne, uden egne links eller logins. Ingen sælgerinvitationer eller mails oprettes. Ejerens produktionslogin og hosting mangler stadig; se [INBOX.md](INBOX.md).
