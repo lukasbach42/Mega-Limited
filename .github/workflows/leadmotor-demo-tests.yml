@@ -19,4 +19,4 @@ jobs:
         with:
           node-version: "22"
       - name: Run synthetic-only tests
-        run: node --test leadmotor-prototype/demo-core.test.mjs
+        run: node --test leadmotor-prototype/*.test.mjs
