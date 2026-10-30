@@ -114,6 +114,12 @@ test("HTTP API enforces authentication, synthetic-only data, dedup and KPI", asy
     body: JSON.stringify(body),
   });
   try {
+    const consoleResponse = await fetch(url + "/demo-console");
+    assert.equal(consoleResponse.status, 200);
+    assert.match(await consoleResponse.text(), /SYNTHETIC ONLY/);
+    const consoleJs = await fetch(url + "/demo-console.js");
+    assert.equal(consoleJs.status, 200);
+    assert.match(await consoleJs.text(), /same-origin localhost synthetic demo UI/i);
     const unauthorized = await request("/api/leads", input(), "Bearer wrong");
     assert.equal(unauthorized.status, 401);
     const real = await request("/api/leads", { ...input(), phone: "41293030" });
