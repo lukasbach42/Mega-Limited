@@ -11,6 +11,9 @@
 - `demo-core.test.mjs`: automatiserede tests af CRM, økonomi, samtykke, dubletter, booking, overgangsregler og HTTP-adgang.
 - `economics.html`: scenarieregner med 25 % historisk partnerprovision, faktisk præmievægtet **17,7126 %** sælgerbetaling (8 på 17 %, 3 på 20 %, baseret på 11 personrækker), clawback, CPL og DB. Provisionsgrundlaget er årspræmien. De 5.000 kr. pr. sælger i modregningsreserve er ikke indtægt.
 
+## Lokal operatørkonsol (tilføjet 30. oktober)
+Start `node leadmotor-prototype/demo-server.mjs` og åbn **http://127.0.0.1:8787/demo-console** på samme computer. Indsæt det midlertidige token fra terminalen. Konsollen opretter udelukkende syntetiske testleads (navn `Test KundeN`, telefon `0000xxxx`, postnummer `0000`), viser kunstige slots, registrerer statushændelser og henter aggregerede KPI. Token lagres ikke i browseren. Konsollen er **ikke** en offentlig leadformular, og der findes stadig ingen sikker produktionsdatabase eller rigtig bookingkalender.
+
 ## Sådan testes lokalt
 
 Kræver Node.js 22 eller nyere; ingen tredjepartsafhængigheder:
