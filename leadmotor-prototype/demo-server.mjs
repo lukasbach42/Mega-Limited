@@ -1,5 +1,6 @@
 // Local-only synthetic demo API. NOT production-ready. Never use with real personal data.
 import http from "node:http";
+import { readFileSync } from "node:fs";
 import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -68,6 +69,22 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
           return reply(res, 403, { error: "INVALID_ORIGIN" });
         }
       }
+      const path = new URL(req.url, "http://127.0.0.1").pathname;
+      // Public only to the local machine: this page contains no customer data or secret.
+      // All CRM API operations still require the Bearer token.
+      if (req.method === "GET" && (path === "/demo-console" || path === "/demo-console.js")) {
+        const script = path.endsWith(".js");
+        const body = readFileSync(new URL(script ? "./demo-console.js" : "./demo-console.html", import.meta.url), "utf8");
+        res.writeHead(200, {
+          "Content-Type": script ? "text/javascript; charset=utf-8" : "text/html; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Referrer-Policy": "no-referrer",
+          "Cross-Origin-Resource-Policy": "same-origin",
+          "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+        });
+        return res.end(body);
+      }
       if (!authenticated(req.headers.authorization, token)) {
         return reply(res, 401, { error: "UNAUTHORIZED" });
       }
@@ -77,7 +94,6 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       const hits = entry && entry.minute === minute ? entry.hits + 1 : 1;
       windows.set(ip, { minute, hits });
       if (hits > 60) return reply(res, 429, { error: "RATE_LIMIT" });
-      const path = new URL(req.url, "http://127.0.0.1").pathname;
       if (req.method === "GET" && path === "/api/slots") return reply(res, 200, crm.availableSlots());
       if (req.method === "GET" && path === "/api/kpi") return reply(res, 200, crm.kpi());
       if (req.method === "POST" && path === "/api/leads") {
