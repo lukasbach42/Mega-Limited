@@ -24,6 +24,8 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eff3f5;padding:16px;
 <label>Testnummer (1–9999) <input id="testno" type="number" min="1" max="9999" value="1"></label>
 <button type="button" id="submit">Opret syntetisk lead</button>
 <p>Testnavn, telefon, postnummer og versioneret demosamtykke udfyldes automatisk.</p>
+<p id="attribution"></p>
+<p>Prøv fx <code>?utm_source=linkedin&amp;utm_medium=organic&amp;utm_campaign=mega_launch</code> i den lokale adresse. Ingen annoncer, cookies eller eksterne kald.</p>
 </section>
 <section><h2>2. Book testslot</h2>
 <button type="button" id="slots">Vis testslots</button>
@@ -43,5 +45,5 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eff3f5;padding:16px;
 </section>
 <section><h2>Resultat</h2><p id="current" aria-live="polite">Intet lead oprettet endnu.</p>
 <pre id="output" role="status" aria-live="polite">Klar til lokal test.</pre></section>
-<script src="/demo-console.js" defer></script>
+<script type="module" src="/demo-console.js"></script>
 </main></body></html>
