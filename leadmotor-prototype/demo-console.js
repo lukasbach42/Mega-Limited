@@ -1,4 +1,5 @@
 // Same-origin localhost synthetic demo UI. No PII and no browser persistence.
+import { parseDemoAttribution } from "./demo-attribution.mjs";
 const el = id => document.getElementById(id);
 let leadId = null;
 const show = value => { el("output").textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2); };
@@ -18,13 +19,15 @@ function action(fn) {
     catch (error) { show("Fejl: " + error.message); }
   };
 }
+el("attribution").textContent = "Testkilde læses fra URL-parametre: utm_source, utm_medium og utm_campaign. Kun test/organic/direct/referral.";
 el("submit").addEventListener("click", action(async () => {
   const n = Number(el("testno").value);
   if (!Number.isSafeInteger(n) || n < 1 || n > 9999) throw new Error("Testnummer skal være 1–9999.");
   const result = await call("/api/leads", "POST", {
     name: "Test Kunde" + n, phone: "0000" + String(n).padStart(4, "0"),
     postcode: "0000", preferred_contact: "formiddag", consent: true,
-    consent_text_version: "demo-v1", source: "test", utm_campaign: "local_demo"
+    consent_text_version: "demo-v1",
+    ...parseDemoAttribution(window.location.search)
   });
   leadId = result.leadId;
   el("current").textContent = "Aktivt testlead: " + leadId;
