@@ -92,6 +92,16 @@ test("economics uses actual premium-weighted seller rate and conservative clawba
   assert.throws(() => calculateLeadEconomics({ closeRate: 1.2 }), /INVALID_ECONOMICS_INPUT/);
 });
 
+test("raw-lead economics accounts for invalid leads without double-counting contact rate", () => {
+  const baseline = calculateLeadEconomics();
+  const reduced = calculateLeadEconomics({ validLeadRate: 2 / 3 });
+  assert.ok(Math.abs(reduced.conversion - 0.084) < 1e-12);
+  assert.ok(Math.abs(reduced.breakEvenCpl - baseline.breakEvenCpl * 2 / 3) < 1e-9);
+  assert.ok(Math.abs(reduced.maxCplAtTarget - baseline.maxCplAtTarget * 2 / 3) < 1e-9);
+  assert.equal(calculateLeadEconomics({ validLeadRate: 0 }).dbPerPolicy, null);
+  assert.throws(() => calculateLeadEconomics({ validLeadRate: 1.01 }), /INVALID_ECONOMICS_INPUT/);
+});
+
 test("HTTP API enforces authentication, synthetic-only data, dedup and KPI", async () => {
   const token = "test-token-longer-than-24-chars";
   const server = createDemoServer({ token });
