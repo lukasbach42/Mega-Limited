@@ -60,7 +60,7 @@ Alle endpoints kræver Bearer-token. Ingen tredjepartsintegrationer og ingen uds
 
 Standardscenarie: årspræmie 10.000 kr., partnerprovision 25 %, sælgerbetaling 17,7126 %, kontaktgrad 60 %, salgsrate blandt kontaktede 21 %, clawback-sandsynlighed 5 %, CPL 100 kr. Forventet clawback beregnes konservativt som 5 % af **hele partnerprovisionen**, fordi sælgerprovision ikke antages tilbagekrævet. Dette er en **antagelse**, ikke en konstateret tabsprocent eller ny partneraftale.
 
-Formler: konvertering = kontaktgrad × salgsrate; DB pr. police = partnerprovision − sælgerbetaling − forventet clawback − andre variable omkostninger − CPL/konvertering. Hvis konverteringen er nul, er DB pr. police ikke beregnelig.
+Formler: rålead→police-konvertering = gyldig-andel × kontaktgrad blandt gyldige × salgsrate blandt kontaktede. DB pr. police = partnerprovision − sælgerbetaling − forventet clawback − andre variable omkostninger − rå CPL / rålead→police-konvertering. Rå CPL og gyldig CPL er forskellige nøgletal; ugyldige leads må ikke dobbelttælles. Hvis konverteringen er nul, er DB pr. police ikke beregnelig.
 
 ## Stop før drift
 
