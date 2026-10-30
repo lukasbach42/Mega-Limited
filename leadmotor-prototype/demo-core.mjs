@@ -76,10 +76,10 @@ export function createDemoCRM({now=()=>new Date().toISOString(),makeId=()=>`demo
   return {submit,getLead,availableSlots,book,recordEvent,kpi};
 }
 
-export function calculateLeadEconomics({annualPremium=10000,partnerRate=25,sellerRate=17.7126,contactRate=0.6,closeRate=0.21,clawbackProbability=0.05,sellerClawbackRecoverable=false,cpl=100,fixedCostPerPolicy=0,targetDb=500}={}){
-  const numeric={annualPremium,partnerRate,sellerRate,contactRate,closeRate,clawbackProbability,cpl,fixedCostPerPolicy,targetDb};
-  if(Object.values(numeric).some(x=>!Number.isFinite(x)||x<0)||partnerRate>100||sellerRate>100||contactRate>1||closeRate>1||clawbackProbability>1) throw new RangeError("INVALID_ECONOMICS_INPUT");
-  const conversion=contactRate*closeRate;
+export function calculateLeadEconomics({annualPremium=10000,partnerRate=25,sellerRate=17.7126,validLeadRate=1,contactRate=0.6,closeRate=0.21,clawbackProbability=0.05,sellerClawbackRecoverable=false,cpl=100,fixedCostPerPolicy=0,targetDb=500}={}){
+  const numeric={annualPremium,partnerRate,sellerRate,validLeadRate,contactRate,closeRate,clawbackProbability,cpl,fixedCostPerPolicy,targetDb};
+  if(Object.values(numeric).some(x=>!Number.isFinite(x)||x<0)||partnerRate>100||sellerRate>100||validLeadRate>1||contactRate>1||closeRate>1||clawbackProbability>1) throw new RangeError("INVALID_ECONOMICS_INPUT");
+  const conversion=validLeadRate*contactRate*closeRate;
   const partnerCommission=annualPremium*partnerRate/100;
   const sellerPay=annualPremium*sellerRate/100;
   const grossMargin=partnerCommission-sellerPay;
@@ -87,5 +87,5 @@ export function calculateLeadEconomics({annualPremium=10000,partnerRate=25,selle
   const marginBeforeLeads=grossMargin-expectedClawback-fixedCostPerPolicy;
   const leadCostPerPolicy=conversion>0?cpl/conversion:null;
   const dbPerPolicy=conversion>0?marginBeforeLeads-leadCostPerPolicy:null;
-  return {conversion,partnerCommission,sellerPay,grossMargin,expectedClawback,marginBeforeLeads,leadCostPerPolicy,dbPerPolicy,breakEvenCpl:Math.max(0,marginBeforeLeads*conversion),maxCplAtTarget:Math.max(0,(marginBeforeLeads-targetDb)*conversion),sellerClawbackRecoverable};
+  return {conversion,validLeadRate,contactRate,closeRate,partnerCommission,sellerPay,grossMargin,expectedClawback,marginBeforeLeads,leadCostPerPolicy,dbPerPolicy,breakEvenCpl:Math.max(0,marginBeforeLeads*conversion),maxCplAtTarget:Math.max(0,(marginBeforeLeads-targetDb)*conversion),sellerClawbackRecoverable};
 }
