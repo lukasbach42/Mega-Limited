@@ -14,6 +14,14 @@
 ## Lokal operatørkonsol (tilføjet 30. oktober)
 Start `node leadmotor-prototype/demo-server.mjs` og åbn **http://127.0.0.1:8787/demo-console** på samme computer. Indsæt det midlertidige token fra terminalen. Konsollen opretter udelukkende syntetiske testleads (navn `Test KundeN`, telefon `0000xxxx`, postnummer `0000`), viser kunstige slots, registrerer statushændelser og henter aggregerede KPI. Token lagres ikke i browseren. Konsollen er **ikke** en offentlig leadformular, og der findes stadig ingen sikker produktionsdatabase eller rigtig bookingkalender.
 
+## Partnerneutral UTM-test uden Meta (30. oktober)
+
+Den lokale konsol læser nu **kun** `utm_source`, `utm_medium` og `utm_campaign` fra sin egen URL og sender dem sammen med et syntetisk testlead til CRM. Tilladte testmedier: `test`, `organic`, `direct`, `referral`. Betalte kanaler afvises i demoen. Dublerede, ugyldige eller personoplysningslignende UTM-værdier afvises; ukendte queryparametre sendes ikke videre. Ingen cookies eller ekstern tracking.
+
+Eksempel: `http://127.0.0.1:8787/demo-console?utm_source=linkedin&utm_medium=organic&utm_campaign=mega_launch`. Opret et testlead, book et syntetisk slot og se `organic/mega_launch` under KPI. Testen bruger hverken Meta eller en ekstern leverandør.
+
+`demo-attribution.mjs` og `demo-attribution.test.mjs` tester parsing, afvisning af ugyldige input og HTTP-API/kanal-KPI. **Det er stadig en lokal prototype, ikke en aktiveret offentlig formular.**
+
 ## Sådan testes lokalt
 
 Kræver Node.js 22 eller nyere; ingen tredjepartsafhængigheder:
