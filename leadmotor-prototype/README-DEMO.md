@@ -22,6 +22,16 @@ Eksempel: `http://127.0.0.1:8787/demo-console?utm_source=linkedin&utm_medium=org
 
 `demo-attribution.mjs` og `demo-attribution.test.mjs` tester parsing, afvisning af ugyldige input og HTTP-API/kanal-KPI. **Det er stadig en lokal prototype, ikke en aktiveret offentlig formular.**
 
+
+## Formular → CRM → booking: syntetisk end-to-end (31. oktober)
+
+Start `node leadmotor-prototype/demo-server.mjs`, og åbn **http://127.0.0.1:8787/demo-flow?utm_source=linkedin&utm_medium=organic&utm_campaign=mega_launch**. Indsæt det midlertidige lokale token fra terminalen. Formularen har **kun et testnummer (1–9999)**, kontakttidsvalg, kunstige slots og et eksplicit **demosamtykke**. Navn, telefon og postnummer genereres automatisk som `Test KundeN`, `0000xxxx` og `0000`; brugeren kan ikke indtaste rigtige kundeoplysninger. Formularen sender til den eksisterende lokale API, opretter versioneret samtykkelog, deduplikerer, booker valgfrit og viser kampagne-KPI. Dobbeltindsendelse giver ikke dobbeltbooking.
+
+- `demo-flow.html`, `demo-flow.js`, `demo-flow.mjs`: partnerneutral syntetisk formular og genbrugelig testkunderejse.
+- `demo-flow.test.mjs`: HTTP-end-to-end-test af statiske assets, oprettelse, booking, dubletter, UTM-KPI og tilbagetrækning af samtykke samt afvisning af ugyldige testinput.
+- Kun loopback; ingen live-formular, ingen faktisk kalender, ingen rigtige persondata, ingen Meta eller tredjepartskald.
+- Den offentligt tilgængelige `index.html` er stadig **deaktiveret**. Dette flow er **ikke** en produktionslancering eller en lovlig kundesamtykketekst.
+
 ## Sådan testes lokalt
 
 Kræver Node.js 22 eller nyere; ingen tredjepartsafhængigheder:
