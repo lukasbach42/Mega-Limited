@@ -72,9 +72,9 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       const path = new URL(req.url, "http://127.0.0.1").pathname;
       // Public only to the local machine: this page contains no customer data or secret.
       // All CRM API operations still require the Bearer token.
-      if (req.method === "GET" && ["/demo-console", "/demo-console.js", "/demo-attribution.mjs"].includes(path)) {
+      if (req.method === "GET" && ["/demo-console", "/demo-console.js", "/demo-attribution.mjs", "/demo-flow", "/demo-flow.js", "/demo-flow.mjs"].includes(path)) {
         const script = path.endsWith(".js") || path.endsWith(".mjs");
-        const asset = path === "/demo-console" ? "./demo-console.html" : "." + path;
+        const asset = path === "/demo-console" ? "./demo-console.html" : path === "/demo-flow" ? "./demo-flow.html" : "." + path;
         const body = readFileSync(new URL(asset, import.meta.url), "utf8");
         res.writeHead(200, {
           "Content-Type": script ? "text/javascript; charset=utf-8" : "text/html; charset=utf-8",
