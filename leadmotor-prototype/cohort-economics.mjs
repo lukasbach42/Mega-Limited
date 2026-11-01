@@ -35,8 +35,8 @@ export function evaluateCohort(input) {
     (clawbackPremium17Dkk + clawbackPremium20Dkk) * partnerRate;
   const observedSellerRecoveryDkk = sellerRecovery ?
     clawbackPremium17Dkk * 0.17 + clawbackPremium20Dkk * 0.20 : 0;
-  const observedNetClawbackDkk =
-    observedPartnerClawbackDkk - observedSellerRecoveryDkk;
+  const observedNetClawbackDkk = Math.max(0,
+    observedPartnerClawbackDkk - observedSellerRecoveryDkk);
   // On immature cohorts, model future loss only on premium not already clawed back.
   const remaining17 = premium17Dkk - clawbackPremium17Dkk;
   const remaining20 = premium20Dkk - clawbackPremium20Dkk;
@@ -44,7 +44,7 @@ export function evaluateCohort(input) {
   const remainingSellerRecovery = sellerRecovery ?
     remaining17 * 0.17 + remaining20 * 0.20 : 0;
   const futureRiskDkk = sixMonthMatured ? 0 :
-    expectedFutureClawbackRate * (remainingPartnerCommission - remainingSellerRecovery);
+    expectedFutureClawbackRate * Math.max(0, remainingPartnerCommission - remainingSellerRecovery);
   const clawbackExposureDkk = observedNetClawbackDkk + futureRiskDkk;
   const marginBeforeAcquisitionDkk =
     partnerCommissionDkk - sellerCommissionDkk - clawbackExposureDkk - variableCostDkk;
