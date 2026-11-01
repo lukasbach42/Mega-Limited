@@ -80,3 +80,10 @@ test("organic leads can have zero spend but are not automatically launch-ready",
   assert.equal(r.status, "provisional_six_month_risk");
   assert.match(r.disclaimer, /No launch or spend authorization/);
 });
+
+test("clawback recovery cannot create artificial negative risk", () => {
+  const r = evaluateCohort({ ...cohort, partnerRatePct: 10, sellerRecovery: true });
+  assert.equal(r.observedNetClawbackDkk, 0);
+  assert.equal(r.futureRiskDkk, 0);
+  assert.ok(r.contributionDkk < 0);
+});
