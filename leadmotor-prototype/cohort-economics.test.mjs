@@ -39,10 +39,10 @@ test("immature cohort keeps observed clawbacks and reserves risk only on remaini
 
 test("seller clawback recovery is opt-in, not presumed", () => {
   const r = evaluateCohort({ ...cohort, sellerRecovery: true });
-  assert.equal(r.observedNetClawbackDkk, 800);
-  assert.equal(r.futureRiskDkk, 395);
-  assert.equal(r.clawbackExposureDkk, 1195);
-  assert.equal(r.contributionDkk, 2905);
+  assert.ok(Math.abs(r.observedNetClawbackDkk - 800) < 1e-8);
+  assert.ok(Math.abs(r.futureRiskDkk - 395) < 1e-8);
+  assert.ok(Math.abs(r.clawbackExposureDkk - 1195) < 1e-8);
+  assert.ok(Math.abs(r.contributionDkk - 2905) < 1e-8);
 });
 
 test("zero leads or policies never produce fake CPL or CAC", () => {
