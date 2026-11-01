@@ -17,9 +17,11 @@ kundernes navne, telefonnumre eller policenumre.
 Brug ikke antal sælgere til at kalde en vægtet sats 'faktisk'. Den faktiske
 præmievægtede sats er
 `(0,17 × præmie_17 + 0,20 × præmie_20) / samlet præmie`.
-Den hidtidige **17,7126 %** i prototypens scenarieregner er kun en
-**illustrativ antagelse** fra et tidligere regneark, ikke verificeret faktisk
-præmievægtning.
+De **17,7126 %** i prototypens scenarieregner stammer fra et **historisk
+rapportudsnit** med 11 personrækker (411.978,09 kr. i sælgerprovision /
+2.325.906 kr. i løbende præmie). Det er et dokumenteret historisk gennemsnit
+for det udsnit, **ikke** en fast sats for fremtidige leadkohorter. Nye kohorter
+skal genberegnes ud fra deres faktiske præmiefordeling.
 
 ## Beregning
 
