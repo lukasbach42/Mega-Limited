@@ -66,6 +66,10 @@ Testdata skal **altid** have navne der begynder med `Test `, telefonnumre `0000x
 
 Alle endpoints kræver Bearer-token. Ingen tredjepartsintegrationer og ingen udsendelse af e-mails eller SMS.
 
+## Aggregeret kohorteøkonomi (1. november)
+
+`cohort-economics.mjs` beregner faktisk præmievægtet sælgerbetaling for **17 % / 20 %**, rå og gyldig CPL, CAC, kendte modregninger og særskilt forventet resterende seksmånedersrisiko. Indtil hele kohorten er seksmånedersmoden, markeres DB **foreløbig**. Det tidligere 17,7126 %-tal stammer fra et historisk rapportudsnit og er ikke en fast sats for nye kanaler. Se `COHORT-ECONOMICS.md` og `cohort-economics.test.mjs`. Modulet behandler kun aggregerede beløb og tællinger, aldrig kundedata, og kan ikke godkende annonceforbrug.
+
 ## Økonomimodel og forbehold
 
 Standardscenarie: årspræmie 10.000 kr., partnerprovision 25 %, sælgerbetaling 17,7126 %, kontaktgrad 60 %, salgsrate blandt kontaktede 21 %, clawback-sandsynlighed 5 %, CPL 100 kr. Forventet clawback beregnes konservativt som 5 % af **hele partnerprovisionen**, fordi sælgerprovision ikke antages tilbagekrævet. Dette er en **antagelse**, ikke en konstateret tabsprocent eller ny partneraftale.
