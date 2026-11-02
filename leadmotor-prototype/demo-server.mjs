@@ -97,7 +97,7 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       if (hits > 60) return reply(res, 429, { error: "RATE_LIMIT" });
       // Minimal synthetic consent audit: no name, phone, postcode or UTM exposed.
       // This is a DEMO record, not evidence of legal marketing consent.
-      const consentAudit = /^\\/api\\/leads\\/(demo-[a-zA-Z0-9-]+)\\/consent$/.exec(path);
+      const consentAudit = /^\/api\/leads\/(demo-[a-zA-Z0-9-]+)\/consent$/.exec(path);
       if (req.method === "GET" && consentAudit) {
         const lead = crm.getLead(consentAudit[1]);
         const recorded = lead.events.find(event => event.type === "consent_recorded");
