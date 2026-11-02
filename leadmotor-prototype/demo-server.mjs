@@ -95,6 +95,23 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       const hits = entry && entry.minute === minute ? entry.hits + 1 : 1;
       windows.set(ip, { minute, hits });
       if (hits > 60) return reply(res, 429, { error: "RATE_LIMIT" });
+      // Minimal synthetic consent audit: no name, phone, postcode or UTM exposed.
+      // This is a DEMO record, not evidence of legal marketing consent.
+      const consentAudit = /^\\/api\\/leads\\/(demo-[a-zA-Z0-9-]+)\\/consent$/.exec(path);
+      if (req.method === "GET" && consentAudit) {
+        const lead = crm.getLead(consentAudit[1]);
+        const recorded = lead.events.find(event => event.type === "consent_recorded");
+        const withdrawn = lead.events.find(event => event.type === "consent_withdrawn");
+        return reply(res, 200, {
+          leadId: lead.id,
+          demoConsentStatus: withdrawn ? "withdrawn" : "recorded",
+          recordedAt: recorded.at,
+          textVersion: recorded.consentTextVersion,
+          consentText: recorded.consentText,
+          withdrawnAt: withdrawn ? withdrawn.at : null,
+          disclaimer: "Synthetic demo only; not legal consent evidence."
+        });
+      }
       if (req.method === "GET" && path === "/api/slots") return reply(res, 200, crm.availableSlots());
       if (req.method === "GET" && path === "/api/kpi") return reply(res, 200, crm.kpi());
       if (req.method === "POST" && path === "/api/leads") {
