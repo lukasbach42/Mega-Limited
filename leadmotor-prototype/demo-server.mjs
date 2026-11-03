@@ -144,7 +144,9 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       const allowed = new Set([
         "NOT_FOUND", "STORAGE_UNAVAILABLE", "JSON_REQUIRED", "BODY_TOO_LARGE",
         "INVALID_JSON", "INVALID_BOOKING", "INVALID_EVENT", "INVALID_LEAD",
-        "DUPLICATE", "SLOT_UNAVAILABLE", "CONSENT_REQUIRED", "INVALID_TRANSITION"
+        "INVALID_INPUT", "UNKNOWN_FIELD", "SYNTHETIC_ONLY", "INVALID_CONTACT_WINDOW",
+        "INVALID_SOURCE", "INVALID_UTM", "INVALID_ID", "INVALID_SLOT", "SLOT_TAKEN",
+        "CONSENT_REQUIRED", "CONSENT_WITHDRAWN", "INVALID_TRANSITION"
       ]);
       const candidate = typeof err.code === "string" ? err.code : err.message;
       const publicCode = allowed.has(candidate) ? candidate : "INVALID_REQUEST";
