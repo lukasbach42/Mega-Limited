@@ -139,7 +139,18 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       return reply(res, 404, { error: "NOT_FOUND" });
     } catch (err) {
       const status = err.status || (err.code === "NOT_FOUND" ? 404 : err.code === "STORAGE_UNAVAILABLE" ? 503 : 422);
-      return reply(res, status, { error: err.code || err.message || "INVALID_REQUEST" });
+      // Never expose internal exception messages or filesystem paths to API clients.
+      // Known validation codes remain actionable for the synthetic-only demo.
+      const allowed = new Set([
+        "NOT_FOUND", "STORAGE_UNAVAILABLE", "JSON_REQUIRED", "BODY_TOO_LARGE",
+        "INVALID_JSON", "INVALID_BOOKING", "INVALID_EVENT", "INVALID_LEAD",
+        "INVALID_INPUT", "UNKNOWN_FIELD", "SYNTHETIC_ONLY", "INVALID_CONTACT_WINDOW",
+        "INVALID_SOURCE", "INVALID_UTM", "INVALID_ID", "INVALID_SLOT", "SLOT_TAKEN",
+        "CONSENT_REQUIRED", "CONSENT_WITHDRAWN", "INVALID_TRANSITION"
+      ]);
+      const candidate = typeof err.code === "string" ? err.code : err.message;
+      const publicCode = allowed.has(candidate) ? candidate : "INVALID_REQUEST";
+      return reply(res, status >= 500 ? 503 : status, { error: status >= 500 ? "SERVICE_UNAVAILABLE" : publicCode });
     }
   });
   return server;
