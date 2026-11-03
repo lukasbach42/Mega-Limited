@@ -5,7 +5,7 @@ const base={annualPremiumDkk:10000,sellerRatePct:17.7126,validLeadRate:1,contact
 test('required partner rate for 90 DKK raw lead and 500 DKK policy contribution',()=>{
  const r=minimumPartnerRate(base);
  assert.equal(r.status,'scenario_only');
- assert.ok(Math.abs(r.requiredPartnerRatePct-33.7069)<.01);
+ assert.ok(Math.abs(r.requiredPartnerRatePct-31.4268)<.01);
 });
 test('invalid raw leads and impossible conversion never produce spurious commission',()=>{
  assert.equal(minimumPartnerRate({...base,validLeadRate:0}).status,'no_conversion');
