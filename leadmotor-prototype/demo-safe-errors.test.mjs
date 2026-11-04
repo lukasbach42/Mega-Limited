@@ -22,9 +22,9 @@ test("unexpected internal exception details never reach synthetic API callers", 
         consent_text_version: "demo-v1", source: "organic"
       })
     });
-    assert.equal(response.status, 422);
+    assert.equal(response.status, 503);
     const body = await response.text();
-    assert.deepEqual(JSON.parse(body), { error: "INVALID_REQUEST" });
+    assert.deepEqual(JSON.parse(body), { error: "SERVICE_UNAVAILABLE" });
     assert.equal(body.includes(secret), false);
     assert.equal(response.headers.get("cache-control"), "no-store");
   } finally {
