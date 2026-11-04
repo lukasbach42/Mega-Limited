@@ -138,7 +138,19 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       }
       return reply(res, 404, { error: "NOT_FOUND" });
     } catch (err) {
-      const status = err.status || (err.code === "NOT_FOUND" ? 404 : err.code === "STORAGE_UNAVAILABLE" ? 503 : 422);
+      const knownValidation = new Set([
+        "NOT_FOUND", "JSON_REQUIRED", "BODY_TOO_LARGE", "INVALID_JSON",
+        "INVALID_BOOKING", "INVALID_EVENT", "INVALID_LEAD", "INVALID_INPUT",
+        "UNKNOWN_FIELD", "SYNTHETIC_ONLY", "INVALID_CONTACT_WINDOW",
+        "INVALID_SOURCE", "INVALID_UTM", "INVALID_ID", "INVALID_SLOT",
+        "SLOT_TAKEN", "CONSENT_REQUIRED", "CONSENT_WITHDRAWN", "INVALID_TRANSITION"
+      ]);
+      const candidate = typeof err.code === "string" ? err.code : err.message;
+      // Unknown exceptions are server failures, never client validation errors.
+      const status = err.code === "STORAGE_UNAVAILABLE" ? 503
+        : err.code === "NOT_FOUND" ? 404
+        : Number.isInteger(err.status) && err.status >= 400 && err.status <= 499 && knownValidation.has(candidate) ? err.status
+        : knownValidation.has(candidate) ? 422 : 503;
       // Never expose internal exception messages or filesystem paths to API clients.
       // Known validation codes remain actionable for the synthetic-only demo.
       const allowed = new Set([
