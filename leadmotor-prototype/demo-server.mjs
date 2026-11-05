@@ -160,7 +160,6 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
         "INVALID_SOURCE", "INVALID_UTM", "INVALID_ID", "INVALID_SLOT", "SLOT_TAKEN",
         "CONSENT_REQUIRED", "CONSENT_WITHDRAWN", "INVALID_TRANSITION"
       ]);
-      const candidate = typeof err.code === "string" ? err.code : err.message;
       const publicCode = allowed.has(candidate) ? candidate : "INVALID_REQUEST";
       return reply(res, status >= 500 ? 503 : status, { error: status >= 500 ? "SERVICE_UNAVAILABLE" : publicCode });
     }
