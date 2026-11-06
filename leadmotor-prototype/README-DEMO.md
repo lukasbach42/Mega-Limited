@@ -63,8 +63,9 @@ Testdata skal **altid** have navne der begynder med `Test `, telefonnumre `0000x
 | POST | /api/leads/:id/booking | Reserver testslot |
 | POST | /api/leads/:id/events | contacted, meeting_held, policy_issued, clawback, consent_withdrawn |
 | GET | /api/kpi | Syntetiske tællinger per kanal og kampagne |
+| GET | /api/leads/:id/consent | Adgangsbeskyttet demosamtykkebevis (version, ordlyd, registreringstid og evt. tilbagetrækning), uden navn/telefon/UTM |
 
-Alle endpoints kræver Bearer-token. Ingen tredjepartsintegrationer og ingen udsendelse af e-mails eller SMS.
+Alle endpoints kræver Bearer-token. Samtykkeaudit er **kun syntetisk**, er ikke juridisk samtykkedokumentation og indeholder ikke kontaktoplysninger. `demo-consent-audit.test.mjs` tester autorisation, minimeret output, tilbagetrækning og genstart. Ingen tredjepartsintegrationer og ingen udsendelse af e-mails eller SMS.
 
 ## Aggregeret kohorteøkonomi (1. november)
 
