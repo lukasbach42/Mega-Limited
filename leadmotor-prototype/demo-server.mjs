@@ -59,7 +59,7 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
         return reply(res, 403, { error: "LOOPBACK_ONLY" });
       }
       const host = req.headers.host || "";
-      if (!/^(?:127\.0\.0\.1|localhost)(?::\d{1,5})?$/.test(host)) {
+      if (!/^(?:127\.0\.0\.1|localhost)(?::\d{1,5})?$/.test(host) || (host.includes(':') && (Number(host.split(':')[1]) < 1 || Number(host.split(':')[1]) > 65535))) {
         return reply(res, 403, { error: "INVALID_HOST" });
       }
       if (req.headers.origin) {
