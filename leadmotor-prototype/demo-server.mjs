@@ -65,7 +65,7 @@ export function createDemoServer({ token, now, makeId, storageFile } = {}) {
       if (req.headers.origin) {
         let origin;
         try { origin = new URL(req.headers.origin); } catch { return reply(res, 403, { error: "INVALID_ORIGIN" }); }
-        if (origin.protocol !== "http:" || origin.host !== host) {
+        if (origin.protocol !== "http:" || origin.host !== host || origin.username || origin.password || origin.pathname !== "/" || origin.search || origin.hash || origin.href !== `http://${host}/`) {
           return reply(res, 403, { error: "INVALID_ORIGIN" });
         }
       }
