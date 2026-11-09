@@ -28,7 +28,7 @@ function authenticated(header, token) {
 }
 
 async function readBody(req) {
-  if (!/^application\/json(?:\s*;|$)/i.test(req.headers["content-type"] || "")) {
+  if (!/^application\/json(?:\s*;\s*charset\s*=\s*utf-8\s*)?$/i.test(req.headers["content-type"] || "")) {
     const err = new Error("JSON_REQUIRED"); err.status = 415; throw err;
   }
   let bytes = 0;
