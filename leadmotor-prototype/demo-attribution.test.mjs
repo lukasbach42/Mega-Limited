@@ -18,6 +18,11 @@ test("URL parser rejects PII-like, malformed, duplicate and paid tracking", () =
   assert.throws(() => parseDemoAttribution("?utm_campaign=%3Cscript%3E"), /INVALID_UTM/);
   assert.throws(() => parseDemoAttribution("?utm_source=a&utm_source=b"), /DUPLICATE_UTM/);
   assert.throws(() => parseDemoAttribution("?utm_medium=paid"), /UNSUPPORTED_DEMO_MEDIUM/);
+  assert.throws(() => parseDemoAttribution("?email=test%40example.com"), /UNSUPPORTED_QUERY_KEY/);
+  assert.throws(() => parseDemoAttribution("?utm_source=linkedin&gclid=fake"), /UNSUPPORTED_QUERY_KEY/);
+  assert.throws(() => parseDemoAttribution("?utm_source=abc%ZZ"), /INVALID_QUERY_ENCODING/);
+  assert.throws(() => parseDemoAttribution("?utm_source=abc%"), /INVALID_QUERY_ENCODING/);
+  assert.equal(parseDemoAttribution("?utm_source=linked%69n&utm_medium=organic").utm_source, "linkedin");
   assert.throws(() => parseDemoAttribution("?" + "a".repeat(1025)), /INVALID_QUERY/);
 });
 
