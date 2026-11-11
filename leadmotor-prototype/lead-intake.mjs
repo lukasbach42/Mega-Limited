@@ -7,7 +7,7 @@ import { validateLead } from "./lead-validation.mjs";
 // In production use a secret HMAC key, a durable atomic unique index and retention policy.
 export function fingerprintLead(phone, secret) {
   if (typeof secret !== "string" || secret.length < 32) throw new Error("missing_strong_secret");
-  if (typeof phone !== "string" || !/^\\+45\\d{8}$/.test(phone)) throw new Error("invalid_normalized_phone");
+  if (typeof phone !== "string" || !/^\+45\d{8}$/.test(phone)) throw new Error("invalid_normalized_phone");
   return createHash("sha256").update(secret + ":" + phone).digest("hex");
 }
 
