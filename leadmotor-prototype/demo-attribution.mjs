@@ -4,7 +4,13 @@ const allowedMediums = new Set(["", "test", "organic", "direct", "referral"]);
 
 export function parseDemoAttribution(search = "") {
   if (typeof search !== "string" || search.length > 1024) throw new Error("INVALID_QUERY");
+  // URLSearchParams silently repairs malformed percent escapes; reject them before parsing.
+  if (/%(?![0-9A-Fa-f]{2})/.test(search)) throw new Error("INVALID_QUERY_ENCODING");
   const params = new URLSearchParams(search);
+  // Do not allow arbitrary query keys to become a covert PII/tracking channel.
+  for (const key of params.keys()) {
+    if (!keys.includes(key)) throw new Error("UNSUPPORTED_QUERY_KEY");
+  }
   const utm = {};
   for (const key of keys) {
     const all = params.getAll(key);
