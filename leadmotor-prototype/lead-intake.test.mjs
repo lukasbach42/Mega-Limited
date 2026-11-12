@@ -10,3 +10,15 @@ test("rejects previously seen number without leaking phone",()=>{const key=finge
 test("rejects invalid consent before fingerprint",()=>assert.ok(prepareLeadForQueue({...lead,consent:false},{now,secret}).errors.includes("consent_not_recorded")));
 test("requires a strong secret",()=>assert.throws(()=>fingerprintLead("+4512345678","weak"),/missing_strong_secret/));
 test("does not mutate seen set",()=>{const seen=new Set();prepareLeadForQueue(lead,{now,secret,seen});assert.equal(seen.size,0);});
+
+test("different secrets produce different keyed fingerprints",()=>{
+  assert.notEqual(fingerprintLead("+4512345678",secret),fingerprintLead("+4512345678","another-synthetic-secret-for-testing-123456789"));
+});
+test("fingerprint is HMAC-SHA256 with explicit domain separation",async()=>{
+  const {createHmac}=await import("node:crypto");
+  const expected=createHmac("sha256",secret).update("mega-lead-dedupe:v1:+4512345678").digest("hex");
+  assert.equal(fingerprintLead("+4512345678",secret),expected);
+});
+test("rejects unnormalized input before fingerprint",()=>{
+  assert.throws(()=>fingerprintLead("12345678",secret),/invalid_normalized_phone/);
+});
