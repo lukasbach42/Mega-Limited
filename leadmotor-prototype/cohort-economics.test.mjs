@@ -100,3 +100,20 @@ test("funnel KPIs distinguish booked meetings, held meetings and sales", () => {
   assert.equal(direct.policyRateAmongHeldMeetings, null);
   assert.equal(direct.policyRateAmongContacted, 0.2);
 });
+
+test("optional booking KPIs distinguish scheduled from held meetings", () => {
+  const r = evaluateCohort({ ...cohort, bookedMeetings: 40 });
+  assert.equal(r.bookedMeetings, 40);
+  assert.equal(r.costPerBookedMeetingDkk, 100);
+  assert.equal(r.bookingRateAmongContacted, 40 / 60);
+  assert.equal(r.meetingShowRate, 0.75);
+  const legacy = evaluateCohort(cohort);
+  assert.equal(legacy.bookedMeetings, null);
+  assert.equal(legacy.meetingShowRate, null);
+  const none = evaluateCohort({ ...cohort, bookedMeetings: 0, meetingsHeld: 0 });
+  assert.equal(none.meetingShowRate, null);
+  assert.equal(none.costPerBookedMeetingDkk, null);
+  for (const bookedMeetings of [-1, 20, 61, 1.5, "40"]) {
+    assert.throws(() => evaluateCohort({ ...cohort, bookedMeetings }), /INVALID_COHORT_INPUT/);
+  }
+});
