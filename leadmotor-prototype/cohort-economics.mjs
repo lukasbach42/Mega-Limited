@@ -9,6 +9,7 @@ export function evaluateCohort(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) invalid();
   const {
     rawLeads, validLeads, contacted, meetingsHeld, policies,
+    bookedMeetings = null,
     premium17Dkk, premium20Dkk, acquisitionSpendDkk,
     clawbackPremium17Dkk = 0, clawbackPremium20Dkk = 0,
     variableCostDkk = 0, partnerRatePct = 25,
@@ -17,7 +18,9 @@ export function evaluateCohort(input) {
   } = input;
   if (![rawLeads, validLeads, contacted, meetingsHeld, policies].every(count) ||
       validLeads > rawLeads || contacted > validLeads ||
-      meetingsHeld > contacted || policies > contacted) invalid();
+      meetingsHeld > contacted || policies > contacted ||
+      (bookedMeetings !== null && (!count(bookedMeetings) ||
+        bookedMeetings < meetingsHeld || bookedMeetings > contacted))) invalid();
   if (![premium17Dkk, premium20Dkk, acquisitionSpendDkk,
         clawbackPremium17Dkk, clawbackPremium20Dkk, variableCostDkk,
         partnerRatePct, expectedFutureClawbackRate, targetDbPerPolicyDkk].every(money) ||
@@ -51,7 +54,7 @@ export function evaluateCohort(input) {
   const contributionDkk = marginBeforeAcquisitionDkk - acquisitionSpendDkk;
   return {
     status: sixMonthMatured ? "matured_observed" : "provisional_six_month_risk",
-    rawLeads, validLeads, contacted, meetingsHeld, policies,
+    rawLeads, validLeads, contacted, bookedMeetings, meetingsHeld, policies,
     annualPremiumDkk, partnerCommissionDkk, sellerCommissionDkk,
     premiumWeightedSellerRatePct: divide(sellerCommissionDkk * 100, annualPremiumDkk),
     observedNetClawbackDkk, futureRiskDkk, clawbackExposureDkk,
@@ -61,6 +64,9 @@ export function evaluateCohort(input) {
     validCplDkk: divide(acquisitionSpendDkk, validLeads),
     cacDkk: divide(acquisitionSpendDkk, policies),
     costPerHeldMeetingDkk: divide(acquisitionSpendDkk, meetingsHeld),
+    costPerBookedMeetingDkk: bookedMeetings === null ? null : divide(acquisitionSpendDkk, bookedMeetings),
+    bookingRateAmongContacted: bookedMeetings === null ? null : divide(bookedMeetings, contacted),
+    meetingShowRate: bookedMeetings === null ? null : divide(meetingsHeld, bookedMeetings),
     meetingHeldRateAmongContacted: divide(meetingsHeld, contacted),
     policyRateAmongContacted: divide(policies, contacted),
     policyRateAmongHeldMeetings: divide(policies, meetingsHeld),
