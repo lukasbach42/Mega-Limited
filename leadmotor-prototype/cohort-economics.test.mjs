@@ -87,3 +87,16 @@ test("clawback recovery cannot create artificial negative risk", () => {
   assert.equal(r.futureRiskDkk, 0);
   assert.ok(r.contributionDkk < 0);
 });
+
+
+test("funnel KPIs distinguish booked meetings, held meetings and sales", () => {
+  const r = evaluateCohort(cohort);
+  assert.ok(Math.abs(r.costPerHeldMeetingDkk - 4000 / 30) < 1e-9);
+  assert.equal(r.meetingHeldRateAmongContacted, 0.5);
+  assert.equal(r.policyRateAmongContacted, 0.2);
+  assert.equal(r.policyRateAmongHeldMeetings, 0.4);
+  const direct = evaluateCohort({ ...cohort, meetingsHeld: 0 });
+  assert.equal(direct.costPerHeldMeetingDkk, null);
+  assert.equal(direct.policyRateAmongHeldMeetings, null);
+  assert.equal(direct.policyRateAmongContacted, 0.2);
+});
