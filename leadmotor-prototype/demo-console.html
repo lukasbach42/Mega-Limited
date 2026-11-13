@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="da">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Mega – lokal syntetisk leadtest</title>
+<style>
+body{font:16px system-ui,sans-serif;background:#f3f3f0;color:#1c2834;margin:0}
+main{max-width:850px;margin:30px auto;padding:24px;background:#fff;border-radius:14px}
+h1{margin-top:0}p{line-height:1.5}label{display:block;margin:12px 0}
+input,select{font:inherit;padding:8px;max-width:100%;border:1px solid #888;border-radius:6px}
+button{padding:10px 16px;margin:8px 6px 8px 0;border:0;border-radius:7px;background:#172d3e;color:#fff;font:inherit;cursor:pointer}
+section{border-top:1px solid #ddd;padding:12px 0}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eff3f5;padding:16px;border-radius:8px;min-height:80px}
+.warning{background:#fff2d7;padding:12px;border-radius:8px}
+</style></head>
+<body><main>
+<h1>Mega – intern leadtest</h1>
+<p class="warning"><strong>SYNTHETIC ONLY – IKKE LIVE.</strong> Kun opdigtede testleads med postnummer 0000 og telefon 0000xxxx. Indtast aldrig rigtige kundeoplysninger. Denne konsol kan kun tilgå lokal demo-API på samme computer.</p>
+<section>
+<label>Lokalt API-token <input id="token" type="password" autocomplete="off" spellcheck="false" size="45" placeholder="Indsæt midlertidigt token fra terminal"></label>
+<p>Token gemmes ikke i browserlager, cookies eller på serveren.</p>
+</section>
+<section><h2>1. Opret testlead</h2>
+<label>Testnummer (1–9999) <input id="testno" type="number" min="1" max="9999" value="1"></label>
+<button type="button" id="submit">Opret syntetisk lead</button>
+<p>Testnavn, telefon, postnummer og versioneret demosamtykke udfyldes automatisk.</p>
+<p id="attribution"></p>
+<p>Prøv fx <code>?utm_source=linkedin&amp;utm_medium=organic&amp;utm_campaign=mega_launch</code> i den lokale adresse. Ingen annoncer, cookies eller eksterne kald.</p>
+</section>
+<section><h2>2. Book testslot</h2>
+<button type="button" id="slots">Vis testslots</button>
+<label>Testslot <select id="slot"><option value="demo-slot-1">demo-slot-1</option><option value="demo-slot-2">demo-slot-2</option></select></label>
+<button type="button" id="book">Book seneste testlead</button>
+</section>
+<section><h2>3. Registrér teststatus</h2>
+<label>Hændelse <select id="event">
+<option value="contacted">Kontaktet</option>
+<option value="meeting_held">Møde afholdt</option>
+<option value="policy_issued">Police udstedt</option>
+<option value="clawback">Modregning</option>
+<option value="consent_withdrawn">Samtykke trukket tilbage</option>
+</select></label>
+<button type="button" id="record">Registrér hændelse</button>
+<button type="button" id="kpi">Vis KPI</button>
+</section>
+<section><h2>Resultat</h2><p id="current" aria-live="polite">Intet lead oprettet endnu.</p>
+<pre id="output" role="status" aria-live="polite">Klar til lokal test.</pre></section>
+<script type="module" src="/demo-console.js"></script>
+</main></body></html>

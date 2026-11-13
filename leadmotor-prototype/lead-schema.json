@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "required": [
+    "name",
+    "phone",
+    "postcode",
+    "consent",
+    "consent_text_version",
+    "consent_at",
+    "source"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120
+    },
+    "phone": {
+      "type": "string",
+      "pattern": "^\\+?[0-9 ]{8,16}$"
+    },
+    "postcode": {
+      "type": "string",
+      "pattern": "^[0-9]{4}$"
+    },
+    "preferred_contact": {
+      "type": "string",
+      "enum": [
+        "formiddag",
+        "eftermiddag"
+      ]
+    },
+    "consent": {
+      "const": true
+    },
+    "consent_text_version": {
+      "type": "string"
+    },
+    "consent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "utm_source": {
+      "type": "string"
+    },
+    "utm_campaign": {
+      "type": "string"
+    }
+  }
+}
