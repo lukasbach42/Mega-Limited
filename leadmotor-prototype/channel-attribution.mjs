@@ -24,10 +24,19 @@ export function evaluateChannels(rows) {
   const rawLeads = total("rawLeads"), validLeads = total("validLeads");
   const policies = total("policies"), spend = total("acquisitionSpendDkk");
   const contribution = total("contributionDkk");
+  const contacted = total("contacted"), meetingsHeld = total("meetingsHeld");
+  // Unknown booking counts cannot be treated as zero.
+  const bookedMeetings = channels.every(row => row.bookedMeetings !== null)
+    ? total("bookedMeetings") : null;
+  const ratio = (a, b) => b ? a / b : null;
   return {
     channels,
     totals: {
-      rawLeads, validLeads, policies,
+      rawLeads, validLeads, contacted, bookedMeetings, meetingsHeld, policies,
+      bookingRateAmongContacted: bookedMeetings === null ? null : ratio(bookedMeetings, contacted),
+      meetingShowRate: bookedMeetings === null ? null : ratio(meetingsHeld, bookedMeetings),
+      costPerBookedMeetingDkk: bookedMeetings === null ? null : ratio(spend, bookedMeetings),
+      costPerHeldMeetingDkk: ratio(spend, meetingsHeld),
       acquisitionSpendDkk: spend, contributionDkk: contribution,
       rawCplDkk: rawLeads ? spend / rawLeads : null,
       validCplDkk: validLeads ? spend / validLeads : null,
