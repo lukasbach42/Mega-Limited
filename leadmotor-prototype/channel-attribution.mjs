@@ -33,6 +33,12 @@ export function evaluateChannels(rows) {
     channels,
     totals: {
       rawLeads, validLeads, contacted, bookedMeetings, meetingsHeld, policies,
+      validLeadRate: ratio(validLeads, rawLeads),
+      contactRateAmongValid: ratio(contacted, validLeads),
+      meetingHeldRateAmongContacted: ratio(meetingsHeld, contacted),
+      policyRateAmongContacted: ratio(policies, contacted),
+      policyRateAmongHeldMeetings: ratio(policies, meetingsHeld),
+      rawLeadToPolicyRate: ratio(policies, rawLeads),
       bookingRateAmongContacted: bookedMeetings === null ? null : ratio(bookedMeetings, contacted),
       meetingShowRate: bookedMeetings === null ? null : ratio(meetingsHeld, bookedMeetings),
       costPerBookedMeetingDkk: bookedMeetings === null ? null : ratio(spend, bookedMeetings),
