@@ -61,3 +61,32 @@ test("partially missing booking data stays unknown across channels", () => {
   assert.equal(totals.costPerBookedMeetingDkk, null);
   assert.equal(totals.costPerHeldMeetingDkk, 0);
 });
+
+test("cross-channel conversion rates are weighted by underlying funnel counts", () => {
+  const google = { ...row("google", "cpc", "funnel", 300, 100),
+    validLeads: 80, contacted: 40, meetingsHeld: 10, policies: 4,
+    premium17Dkk: 40000 };
+  const referral = { ...row("referral", "organic", "funnel", 0, 10),
+    validLeads: 10, contacted: 10, meetingsHeld: 0, policies: 1,
+    premium20Dkk: 10000 };
+  const { totals } = evaluateChannels([google, referral]);
+  assert.equal(totals.validLeadRate, 90 / 110);
+  assert.equal(totals.contactRateAmongValid, 50 / 90);
+  assert.equal(totals.meetingHeldRateAmongContacted, 10 / 50);
+  assert.equal(totals.policyRateAmongContacted, 5 / 50);
+  assert.equal(totals.policyRateAmongHeldMeetings, 5 / 10);
+  assert.equal(totals.rawLeadToPolicyRate, 5 / 110);
+});
+
+test("zero denominators remain unknown and direct phone sales need no meetings", () => {
+  const empty = evaluateChannels([row("unknown", "none", "empty", 0, 0)]).totals;
+  for (const key of ["validLeadRate", "contactRateAmongValid",
+    "meetingHeldRateAmongContacted", "policyRateAmongContacted",
+    "policyRateAmongHeldMeetings", "rawLeadToPolicyRate"]) {
+    assert.equal(empty[key], null);
+  }
+  const phone = evaluateChannels([{ ...row("direct", "phone", "test", 0, 2),
+    policies: 1, premium17Dkk: 10000 }]).totals;
+  assert.equal(phone.policyRateAmongContacted, 0.5);
+  assert.equal(phone.policyRateAmongHeldMeetings, null);
+});
