@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Mega – syntetisk formular-til-booking test</title>
+<style>
+body{font:16px system-ui,sans-serif;background:#f5f4f1;color:#182735;margin:0}main{max-width:640px;margin:32px auto;padding:28px;background:#fff;border-radius:14px}
+label{display:block;margin:16px 0}input,select,button{box-sizing:border-box;width:100%;font:inherit;padding:10px;margin-top:6px;border:1px solid #888;border-radius:7px}
+input[type=checkbox]{width:auto}button{background:#193447;color:#fff;cursor:pointer}button:disabled{opacity:.6}pre{background:#edf1f3;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+.warning{background:#fff1d7;padding:12px;border-radius:8px}
+</style></head><body><main>
+<p class="warning"><strong>INTERN PROTOTYPE – IKKE TIL KUNDER.</strong> Ingen rigtige navne, telefonnumre eller postnumre kan indtastes. Ingen booking, forsikring eller kontakt bliver oprettet i virkeligheden.</p>
+<h1>Få et uforpligtende forsikringstjek</h1>
+<p>Partnerneutral simulering af formular → samtykkelog → CRM → booking → kanal-KPI. Alle værdier er opdigtede.</p>
+<form id="demo-form" autocomplete="off">
+<label for="token">Midlertidigt lokalt API-token<input id="token" type="password" required autocomplete="off" spellcheck="false"></label>
+<label for="test-number">Testkundenummer (1–9999)<input id="test-number" type="number" min="1" max="9999" value="1" required></label>
+<label for="contact-window">Ønsket kontakttid (test)<select id="contact-window"><option value="formiddag">Formiddag</option><option value="eftermiddag">Eftermiddag</option></select></label>
+<label for="slot">Testbooking<select id="slot"><option value="">Ingen booking</option><option value="demo-slot-1">Testslot 1</option><option value="demo-slot-2">Testslot 2</option></select></label>
+<label><input id="demo-consent" type="checkbox" required> Jeg accepterer et <strong>syntetisk demosamtykke</strong>. Dette er ikke et juridisk samtykke til markedsføring.</label>
+<button id="run" type="submit">Test hele leadflowet</button>
+</form>
+<p>Kun <code>utm_source</code>, <code>utm_medium</code> og <code>utm_campaign</code> læses fra URL. Tilladte medier: organic, direct, referral og test. Ingen cookies, Meta eller eksterne scripts.</p>
+<pre id="result" role="status" aria-live="polite">Klar til lokal test.</pre>
+<script type="module" src="/demo-flow.js"></script>
+</main></body></html>

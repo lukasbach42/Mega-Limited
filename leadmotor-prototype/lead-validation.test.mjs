@@ -1,0 +1,12 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { normalizePhone, validateLead } from "./lead-validation.mjs";
+const now = new Date("2026-11-09T08:00:00Z");
+const valid = { name:" Test Kunde ", phone:"12 34 56 78", postcode:"9000", consent:true, consent_text_version:"v1", consent_at:"2026-11-09T07:59:00Z", source:"organic" };
+test("normalizes Danish numbers",()=>{ assert.equal(normalizePhone("12345678"),"+4512345678"); assert.equal(normalizePhone("0045 12345678"),"+4512345678"); assert.equal(normalizePhone("+45 12345678"),"+4512345678"); });
+test("valid lead normalizes without storage",()=>{ const r=validateLead(valid,now); assert.equal(r.ok,true); assert.equal(r.value.phone,"+4512345678"); assert.equal(r.value.name,"Test Kunde"); });
+test("rejects no consent",()=>assert.ok(validateLead({...valid,consent:false},now).errors.includes("consent_not_recorded")));
+test("rejects future timestamp",()=>assert.ok(validateLead({...valid,consent_at:"2026-11-10T00:00:00Z"},now).errors.includes("future_consent_timestamp")));
+test("rejects unknown fields",()=>assert.ok(validateLead({...valid,health_notes:"private"},now).errors.includes("unexpected_field:health_notes")));
+test("rejects malformed numbers",()=>assert.ok(validateLead({...valid,phone:"123"},now).errors.includes("invalid_phone")));
+test("rejects missing payload",()=>assert.equal(validateLead(null,now).ok,false));
