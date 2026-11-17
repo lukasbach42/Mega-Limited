@@ -90,3 +90,17 @@ test("zero denominators remain unknown and direct phone sales need no meetings",
   assert.equal(phone.policyRateAmongContacted, 0.5);
   assert.equal(phone.policyRateAmongHeldMeetings, null);
 });
+
+test("aggregate count overflow is rejected instead of producing rounded KPI denominators", () => {
+  const huge = { ...row("direct", "none", "large", 0, Number.MAX_SAFE_INTEGER) };
+  const one = row("referral", "organic", "one", 0, 1);
+  assert.throws(() => evaluateChannels([huge, one]), /INVALID_CHANNEL_COHORT/);
+});
+
+test("aggregate booking count overflow is rejected even if each cohort is valid", () => {
+  const huge = { ...row("direct", "none", "large_booking", 0, Number.MAX_SAFE_INTEGER),
+    bookedMeetings: Number.MAX_SAFE_INTEGER };
+  const one = { ...row("referral", "organic", "one_booking", 0, 1),
+    bookedMeetings: 1 };
+  assert.throws(() => evaluateChannels([huge, one]), /INVALID_CHANNEL_COHORT/);
+});

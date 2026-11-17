@@ -20,7 +20,14 @@ export function evaluateChannels(rows) {
     const result = evaluateCohort(metrics);
     return { source, medium, campaign, ...result };
   });
-  const total = key => channels.reduce((sum, row) => sum + row[key], 0);
+  // Per-cohort counts are safe integers, but their sum may overflow JS safe-integer precision.
+  // Reject misleading aggregate KPIs rather than silently rounding lead counts.
+  const countKeys = ["rawLeads", "validLeads", "contacted", "meetingsHeld", "policies"];
+  const total = key => {
+    const sum = channels.reduce((acc, row) => acc + row[key], 0);
+    if (!Number.isFinite(sum) || (countKeys.includes(key) && !Number.isSafeInteger(sum))) invalid();
+    return sum;
+  };
   const rawLeads = total("rawLeads"), validLeads = total("validLeads");
   const policies = total("policies"), spend = total("acquisitionSpendDkk");
   const contribution = total("contributionDkk");
@@ -28,6 +35,7 @@ export function evaluateChannels(rows) {
   // Unknown booking counts cannot be treated as zero.
   const bookedMeetings = channels.every(row => row.bookedMeetings !== null)
     ? total("bookedMeetings") : null;
+  if (bookedMeetings !== null && !Number.isSafeInteger(bookedMeetings)) invalid();
   const ratio = (a, b) => b ? a / b : null;
   return {
     channels,
