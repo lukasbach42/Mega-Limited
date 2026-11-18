@@ -117,3 +117,13 @@ test("optional booking KPIs distinguish scheduled from held meetings", () => {
     assert.throws(() => evaluateCohort({ ...cohort, bookedMeetings }), /INVALID_COHORT_INPUT/);
   }
 });
+
+test("finite inputs cannot overflow combined premium or acquisition costs", () => {
+  assert.throws(() => evaluateCohort({
+    ...cohort, premium17Dkk: 1e308, premium20Dkk: 1e308,
+    clawbackPremium17Dkk: 0
+  }), /INVALID_COHORT_INPUT/);
+  assert.throws(() => evaluateCohort({
+    ...cohort, acquisitionSpendDkk: 1e308, variableCostDkk: 1e308
+  }), /INVALID_COHORT_INPUT/);
+});
