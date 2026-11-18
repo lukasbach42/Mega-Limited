@@ -52,6 +52,13 @@ export function evaluateCohort(input) {
   const marginBeforeAcquisitionDkk =
     partnerCommissionDkk - sellerCommissionDkk - clawbackExposureDkk - variableCostDkk;
   const contributionDkk = marginBeforeAcquisitionDkk - acquisitionSpendDkk;
+  // Individually finite inputs can still overflow when combined. Never expose
+  // Infinity/NaN as financial KPIs or use them to approve a lead channel.
+  if (![annualPremiumDkk, partnerCommissionDkk, sellerCommissionDkk,
+        observedPartnerClawbackDkk, observedSellerRecoveryDkk,
+        observedNetClawbackDkk, remainingPartnerCommission,
+        remainingSellerRecovery, futureRiskDkk, clawbackExposureDkk,
+        marginBeforeAcquisitionDkk, contributionDkk].every(Number.isFinite)) invalid();
   return {
     status: sixMonthMatured ? "matured_observed" : "provisional_six_month_risk",
     rawLeads, validLeads, contacted, bookedMeetings, meetingsHeld, policies,
