@@ -127,3 +127,12 @@ test("finite inputs cannot overflow combined premium or acquisition costs", () =
     ...cohort, acquisitionSpendDkk: 1e308, variableCostDkk: 1e308
   }), /INVALID_COHORT_INPUT/);
 });
+
+
+test("rejects overflowed total target even when per-policy target is finite", () => {
+  assert.throws(() => evaluateCohort({
+    ...cohort, targetDbPerPolicyDkk: 1e308
+  }), /INVALID_COHORT_INPUT/);
+  const valid = evaluateCohort({ ...cohort, targetDbPerPolicyDkk: 500 });
+  assert.equal(valid.maxRawCplAtTargetDkk, 0);
+});
