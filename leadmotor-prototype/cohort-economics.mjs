@@ -52,13 +52,14 @@ export function evaluateCohort(input) {
   const marginBeforeAcquisitionDkk =
     partnerCommissionDkk - sellerCommissionDkk - clawbackExposureDkk - variableCostDkk;
   const contributionDkk = marginBeforeAcquisitionDkk - acquisitionSpendDkk;
+  const targetContributionDkk = targetDbPerPolicyDkk * policies;
   // Individually finite inputs can still overflow when combined. Never expose
   // Infinity/NaN as financial KPIs or use them to approve a lead channel.
   if (![annualPremiumDkk, partnerCommissionDkk, sellerCommissionDkk,
         observedPartnerClawbackDkk, observedSellerRecoveryDkk,
         observedNetClawbackDkk, remainingPartnerCommission,
         remainingSellerRecovery, futureRiskDkk, clawbackExposureDkk,
-        marginBeforeAcquisitionDkk, contributionDkk].every(Number.isFinite)) invalid();
+        marginBeforeAcquisitionDkk, contributionDkk, targetContributionDkk].every(Number.isFinite)) invalid();
   return {
     status: sixMonthMatured ? "matured_observed" : "provisional_six_month_risk",
     rawLeads, validLeads, contacted, bookedMeetings, meetingsHeld, policies,
@@ -84,7 +85,7 @@ export function evaluateCohort(input) {
       clawbackPremium17Dkk + clawbackPremium20Dkk, annualPremiumDkk),
     breakEvenRawCplDkk: rawLeads ? Math.max(0, marginBeforeAcquisitionDkk / rawLeads) : null,
     maxRawCplAtTargetDkk: rawLeads ?
-      Math.max(0, (marginBeforeAcquisitionDkk - targetDbPerPolicyDkk * policies) / rawLeads) : null,
+      Math.max(0, (marginBeforeAcquisitionDkk - targetContributionDkk) / rawLeads) : null,
     disclaimer: "Aggregate cohort scenario only; six-month maturity must be verified. No launch or spend authorization."
   };
 }
