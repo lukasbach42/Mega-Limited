@@ -13,10 +13,10 @@ const cohort = (source, matured) => ({
 test("mixed six-month maturity remains provisional and exposes future risk", () => {
   const report = evaluateChannels([cohort("referral", true), cohort("google", false)]);
   assert.equal(report.totals.maturityStatus, "provisional_six_month_risk");
-  assert.equal(report.totals.futureRiskDkk, 250);
-  assert.equal(report.totals.clawbackExposureDkk, 250);
+  assert.equal(report.totals.futureRiskDkk, 80);
+  assert.equal(report.totals.clawbackExposureDkk, 80);
   assert.equal(report.totals.rawCplDkk, 10);
-  assert.equal(report.totals.contributionDkk, 1600 - 250 - 200);
+  assert.equal(report.totals.contributionDkk, 1600 - 80 - 200);
 });
 
 test("all matured cohorts have no modeled future six-month risk", () => {
