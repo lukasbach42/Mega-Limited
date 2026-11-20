@@ -31,6 +31,11 @@ export function evaluateChannels(rows) {
   const rawLeads = total("rawLeads"), validLeads = total("validLeads");
   const policies = total("policies"), spend = total("acquisitionSpendDkk");
   const contribution = total("contributionDkk");
+  const clawbackExposure = total("clawbackExposureDkk");
+  const futureRisk = total("futureRiskDkk");
+  // A mixed-age channel report is not fully mature until every cohort is.
+  const maturityStatus = channels.every(row => row.status === "matured_observed")
+    ? "matured_observed" : "provisional_six_month_risk";
   const contacted = total("contacted"), meetingsHeld = total("meetingsHeld");
   // Unknown booking counts cannot be treated as zero.
   const bookedMeetings = channels.every(row => row.bookedMeetings !== null)
@@ -52,6 +57,8 @@ export function evaluateChannels(rows) {
       costPerBookedMeetingDkk: bookedMeetings === null ? null : ratio(spend, bookedMeetings),
       costPerHeldMeetingDkk: ratio(spend, meetingsHeld),
       acquisitionSpendDkk: spend, contributionDkk: contribution,
+      clawbackExposureDkk: clawbackExposure, futureRiskDkk: futureRisk,
+      maturityStatus,
       rawCplDkk: rawLeads ? spend / rawLeads : null,
       validCplDkk: validLeads ? spend / validLeads : null,
       cacDkk: policies ? spend / policies : null
