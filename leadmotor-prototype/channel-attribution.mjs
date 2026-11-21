@@ -38,14 +38,16 @@ export function evaluateChannels(rows) {
     ? "matured_observed" : "provisional_six_month_risk";
   const contacted = total("contacted"), meetingsHeld = total("meetingsHeld");
   // Unknown booking counts cannot be treated as zero.
-  const bookedMeetings = channels.every(row => row.bookedMeetings !== null)
-    ? total("bookedMeetings") : null;
+  const bookingReportedChannels = channels.filter(row => row.bookedMeetings !== null).length;
+  const bookingCoverageComplete = bookingReportedChannels === channels.length;
+  const bookedMeetings = bookingCoverageComplete ? total("bookedMeetings") : null;
   if (bookedMeetings !== null && !Number.isSafeInteger(bookedMeetings)) invalid();
   const ratio = (a, b) => b ? a / b : null;
   return {
     channels,
     totals: {
       rawLeads, validLeads, contacted, bookedMeetings, meetingsHeld, policies,
+      bookingReportedChannels, bookingTotalChannels: channels.length, bookingCoverageComplete,
       validLeadRate: ratio(validLeads, rawLeads),
       contactRateAmongValid: ratio(contacted, validLeads),
       meetingHeldRateAmongContacted: ratio(meetingsHeld, contacted),
