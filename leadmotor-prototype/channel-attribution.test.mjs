@@ -104,3 +104,20 @@ test("aggregate booking count overflow is rejected even if each cohort is valid"
     bookedMeetings: 1 };
   assert.throws(() => evaluateChannels([huge, one]), /INVALID_CHANNEL_COHORT/);
 });
+
+
+test("booking completeness is explicit for mixed known and unknown channel counts", () => {
+  const known = { ...row("google", "cpc", "synthetic_coverage", 200, 10), bookedMeetings: 2 };
+  const unknown = row("referral", "organic", "synthetic_coverage", 0, 5);
+  const partial = evaluateChannels([known, unknown]).totals;
+  assert.equal(partial.bookingReportedChannels, 1);
+  assert.equal(partial.bookingTotalChannels, 2);
+  assert.equal(partial.bookingCoverageComplete, false);
+  assert.equal(partial.bookedMeetings, null);
+  assert.equal(partial.costPerBookedMeetingDkk, null);
+  const complete = evaluateChannels([known, { ...unknown, bookedMeetings: 0 }]).totals;
+  assert.equal(complete.bookingReportedChannels, 2);
+  assert.equal(complete.bookingCoverageComplete, true);
+  assert.equal(complete.bookedMeetings, 2);
+  assert.equal(complete.costPerBookedMeetingDkk, 100);
+});
