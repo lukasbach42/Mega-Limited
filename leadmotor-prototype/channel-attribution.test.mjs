@@ -121,3 +121,26 @@ test("booking completeness is explicit for mixed known and unknown channel count
   assert.equal(complete.bookedMeetings, 2);
   assert.equal(complete.costPerBookedMeetingDkk, 100);
 });
+
+test("booking lead coverage is weighted by leads, not number of channels", () => {
+  const small = { ...row("google", "cpc", "coverage", 100, 1), bookedMeetings: 0 };
+  const large = row("referral", "organic", "coverage", 0, 99);
+  const partial = evaluateChannels([small, large]).totals;
+  assert.equal(partial.bookingReportedChannels, 1);
+  assert.equal(partial.bookingTotalChannels, 2);
+  assert.equal(partial.bookingReportedRawLeads, 1);
+  assert.equal(partial.bookingLeadCoverageRate, 0.01);
+  assert.equal(partial.bookingCoverageComplete, false);
+  const full = evaluateChannels([small, { ...large, bookedMeetings: 0 }]).totals;
+  assert.equal(full.bookingReportedRawLeads, 100);
+  assert.equal(full.bookingLeadCoverageRate, 1);
+  assert.equal(full.bookingCoverageComplete, true);
+});
+
+test("zero-lead cohorts do not invent a lead-weighted coverage percentage", () => {
+  const totals = evaluateChannels([{ ...row("direct", "none", "empty_coverage", 0, 0),
+    bookedMeetings: 0 }]).totals;
+  assert.equal(totals.bookingReportedRawLeads, 0);
+  assert.equal(totals.bookingLeadCoverageRate, null);
+  assert.equal(totals.bookingCoverageComplete, true);
+});
