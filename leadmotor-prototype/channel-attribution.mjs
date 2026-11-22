@@ -40,6 +40,11 @@ export function evaluateChannels(rows) {
   // Unknown booking counts cannot be treated as zero.
   const bookingReportedChannels = channels.filter(row => row.bookedMeetings !== null).length;
   const bookingCoverageComplete = bookingReportedChannels === channels.length;
+  // Channel count alone overstates coverage when a small channel reports and a large one does not.
+  const bookingReportedRawLeads = channels.reduce((sum, row) =>
+    sum + (row.bookedMeetings !== null ? row.rawLeads : 0), 0);
+  if (!Number.isSafeInteger(bookingReportedRawLeads)) invalid();
+  const bookingLeadCoverageRate = rawLeads ? bookingReportedRawLeads / rawLeads : null;
   const bookedMeetings = bookingCoverageComplete ? total("bookedMeetings") : null;
   if (bookedMeetings !== null && !Number.isSafeInteger(bookedMeetings)) invalid();
   const ratio = (a, b) => b ? a / b : null;
@@ -48,6 +53,7 @@ export function evaluateChannels(rows) {
     totals: {
       rawLeads, validLeads, contacted, bookedMeetings, meetingsHeld, policies,
       bookingReportedChannels, bookingTotalChannels: channels.length, bookingCoverageComplete,
+      bookingReportedRawLeads, bookingLeadCoverageRate,
       validLeadRate: ratio(validLeads, rawLeads),
       contactRateAmongValid: ratio(contacted, validLeads),
       meetingHeldRateAmongContacted: ratio(meetingsHeld, contacted),
