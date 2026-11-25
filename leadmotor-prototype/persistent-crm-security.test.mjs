@@ -8,7 +8,7 @@ import { createPersistentCRM } from './persistent-crm.mjs';
 
 const key = 'ab'.repeat(32);
 const input = {
-  name: 'Synthetic Storage Sentinel',
+  name: 'Test Storage Sentinel',
   phone: '00001234',
   postcode: '0000',
   preferred_contact: 'formiddag',
